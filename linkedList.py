@@ -208,7 +208,13 @@ class LinkedList:
         Returns:
             int: The number of deleted nodes.
         """
-        ...
+        #? opt1: self.head = self.end_node # máme garbage collector
+        #* Opt: 2
+        while self.head != self.end_node:
+            actual = self.head
+            self.head = actual.next
+            del actual
+            # actual.next = None
 
     def __getitem__(self, index: int):
         """
