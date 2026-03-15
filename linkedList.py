@@ -23,22 +23,23 @@ class LinkedList:
     
     def __init__(self):
         """Initializes an empty single linked list with a sentinel node (endnode)."""
-        self.end_node = Node()
-        self.head = self.end_node
+        self.endnode = Node()
+        self.head = self.endnode
+
 
     def is_empty(self) -> bool:
         """Returns True if the linked list is empty (i.e., contains only the sentinel node), False otherwise."""
-        if self.head == self.end_node:
+        if self.head == self.endnode:
             return True
         return False
 
 
     def append(self, data):
         """Appends a new node with the given data to the end of the linked list."""
-        self.end_node.data = data
+        self.endnode.data = data
         new_node = Node(None)
-        self.end_node.next = new_node
-        self.end_node = new_node
+        self.endnode.next = new_node
+        self.endnode = new_node
         return
 
 
@@ -54,7 +55,7 @@ class LinkedList:
         """Prints the whole linked list."""
         actual_node = self.head
 
-        while actual_node != self.end_node:
+        while actual_node != self.endnode:
             print(actual_node, end = " -> ")
             actual_node = actual_node.next
         print(".")
@@ -65,7 +66,7 @@ class LinkedList:
         actual_node = self.head
         string = ""
 
-        while actual_node != self.end_node:
+        while actual_node != self.endnode:
             string += str(actual_node) + " -> "
             actual_node = actual_node.next
         return string + " ."
@@ -75,11 +76,11 @@ class LinkedList:
         """Deletes all nodes from the linked list (except the sentinel node)."""
         actual_node = self.head
         
-        while actual_node != self.end_node:
+        while actual_node != self.endnode:
             ref = actual_node.next
             actual_node.data = None
             actual_node = ref
-        self.head = self.end_node
+        self.head = self.endnode
         return
 
     def find(self, data) -> Node:
@@ -92,7 +93,7 @@ class LinkedList:
         """
         actual_node = self.head
 
-        while actual_node != self.end_node:
+        while actual_node != self.endnode:
             if actual_node.data == data:
                 return actual_node
             actual_node = actual_node.next
@@ -106,7 +107,7 @@ class LinkedList:
         Raises:
             ValueError: If the linked list is empty.
         """
-        if self.head != self.end_node:
+        if self.head != self.endnode:
             return self.head.data
         raise ValueError("Linked list is empty")
 
@@ -120,10 +121,10 @@ class LinkedList:
         """
         actual_node = self.head
 
-        if self.head == self.end_node: # if list is empty
+        if self.head == self.endnode: # if list is empty
             raise ValueError("Linked list is empty")
 
-        while actual_node != self.end_node:
+        while actual_node != self.endnode:
             data = actual_node.data
             actual_node = actual_node.next
         return data
@@ -136,7 +137,7 @@ class LinkedList:
         Raises:
             ValueError: If the linked list is empty.
         """
-        if self.head == self.end_node: # if list is empty
+        if self.head == self.endnode: # if list is empty
             raise ValueError("Linked list is empty")
         
         first_node = self.head
@@ -154,22 +155,22 @@ class LinkedList:
         actual_node = self.head
 
         #* List isn't empty
-        if self.head == self.end_node:
+        if self.head == self.endnode:
             raise ValueError("Linked list is empty")
 
-        #* Next node is end_node
-        elif actual_node.next == self.end_node:
+        #* Next node is endnode
+        elif actual_node.next == self.endnode:
             data = actual_node.data
-            self.head = self.end_node
+            self.head = self.endnode
             return data
 
         #* General
-        while actual_node.next != self.end_node:
+        while actual_node.next != self.endnode:
             ref = actual_node
             actual_node = actual_node.next
 
-            if actual_node.next == self.end_node:
-                ref.next = self.end_node
+            if actual_node.next == self.endnode:
+                ref.next = self.endnode
                 return actual_node.data
 
 
@@ -181,7 +182,7 @@ class LinkedList:
             bool: True if a node was deleted, False if the data was not found.
         """
         #* Check for empty list
-        if self.head == self.end_node:
+        if self.head == self.endnode:
             return False
         
         #* Data in the first node
@@ -192,15 +193,17 @@ class LinkedList:
             return True
 
         #* General
-        while actual_node != self.end_node:
-            if actual_node.next != self.end_node and actual_node.next.data == data:
+        while actual_node != self.endnode:
+            if actual_node.next != self.endnode and actual_node.next.data == data:
                 next_node = actual_node.next
                 actual_node.next = next_node.next
                 return True
 
             actual_node = actual_node.next
         return False # node wasn't found
+    
 
+    # za end_node se omlouvám, ale už jsem ho opravil nazpět
     def delete_all_occurrences(self, data):
         """
         Deletes all nodes with the specified data from the linked list.
@@ -208,13 +211,15 @@ class LinkedList:
         Returns:
             int: The number of deleted nodes.
         """
-        #? opt1: self.head = self.end_node # máme garbage collector
-        #* Opt: 2
-        while self.head != self.end_node:
-            actual = self.head
-            self.head = actual.next
-            del actual
-            # actual.next = None
+        deleted_nodes = 0
+        while True:
+            increment = self.delete(data)
+
+            if increment:
+                deleted_nodes += 1
+            else:
+                return deleted_nodes
+
 
     def __getitem__(self, index: int):
         """
@@ -334,14 +339,80 @@ if __name__ == "__main__":
     lst.display()
     
 
-def test():
-    n = Node("John")
-    print(n)
+#! Tests
+if __name__ == "__main__":
+    lst = LinkedList()
+    lst.insert_at_beginning("A")
+    lst.insert_at_beginning("B")
+    lst.insert_at_beginning("C")
+    print("Running tests on following list:")
+    lst.display()
+    print("")
 
-    l = LinkedList()
-    for i in range(10):
-        l.append(i)
-    print(l)
+
+    #* First()
+    print(f"first(): {lst.first()}")
+    try:
+        LinkedList().first()
+    except ValueError as e:
+        print(f"first() on empty list: {e}")
+    print("")
+
+
+    #* Remove first()
+    print(f"remove_first(): {lst.remove_first()}")
+    lst.display()
+    try:
+        LinkedList().remove_first()
+    except ValueError as e:
+        print(f"remove_first() on empty list: {e}")
+    print("")
+
+
+    #* Last()
+    print(f"last(): {lst.last()}")
+    try:
+        LinkedList().last()
+    except ValueError as e:
+        print(f"last() on empty list: {e}")
+    print("")
+
+
+    #* Remove last()
+    print(f"remove_last(): {lst.remove_last()}")
+    lst.display()
+    try:
+        LinkedList().remove_last()
+    except ValueError as e:
+        print(f"remove_last() on empty list: {e}")
+    print("")
+
+
+    #* Find()
+    print(f"find('B'): {lst.find('B')}")
+    print(f"find('D'): {lst.find('D')}\n")
+
+
+    #* Delete()
+    lst.insert_at_beginning("A")
+    lst.insert_at_beginning("C")
+    print(f"delete('C'): {lst.delete('C')}")
+    lst.display()
+    print(f"delete('D'): {lst.delete('D')}")
+
+
+    #* Delete all occurances()
+    print("")
+
+    print(f"delete all occurances for no occurances: {lst.delete_all_occurrences("C")}" )
+    lst.display()
+
+    lst.insert_at_beginning("A")
+    lst.insert_at_beginning("A")
+    lst.append("A")
+    lst.display()
+    print(f"delete all occurances for multiple occurances: {lst.delete_all_occurrences("A")}" )
+    lst.display()
 
     # Indexation ... setitem, getitem
     """

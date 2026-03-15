@@ -22,9 +22,11 @@ class BinarySearchTree:
         """Initializes an empty binary search tree."""
         self.root = None   # Reference to the root node
 
+
     def is_empty(self) -> bool:
         """Returns True if the BST is empty, False otherwise."""
-        ...
+        return self.root == None
+
 
     def find(self, data):
         """
@@ -36,7 +38,50 @@ class BinarySearchTree:
         Returns:
             Node with the given data if found, otherwise None.
         """
-        ...
+        current_node = self.root
+        if self.is_empty():
+            return None
+
+        while True:
+            if data < current_node.data:
+                current_node = current_node.left
+            elif data > current_node.data:
+                current_node = current_node.right
+
+            if current_node == None:
+                return None
+            elif data == current_node.data:
+                return current_node
+    
+
+    def recursive_find(self, data, current_node=None, firstCall=True):
+        """
+        Search for a node with the given data. Implement with recursion.
+
+        Parameters:
+            data: Data to search for.
+
+        Returns:
+            Node with the given data if found, otherwise None.
+        """    
+        # check for first call
+        if firstCall:
+            current_node = self.root
+
+        # check for none
+        if current_node == None:
+            return None
+        
+        # initial condition
+        if current_node.data == data:
+            return current_node
+        
+        # call recursion with proper new node
+        elif data > current_node.data:
+            return self.recursive_find(data, current_node.right, False)
+        elif data < current_node.data:
+            return self.recursive_find(data, current_node.left, False)
+
 
     def insert(self, data) -> None:
         """
@@ -46,7 +91,23 @@ class BinarySearchTree:
         Parameters:
             data: Data to store in the BST.
         """
-        ...
+        if self.root is None:
+            self.root = Node(data)
+            return
+        actual_node = self.root
+        while actual_node is not None:
+            if actual_node.data == data:
+                return
+            elif actual_node.data > data:
+                if actual_node.left is None:
+                    actual_node.left = Node(data)
+                    return
+                actual_node = actual_node.left
+            else:# actual_node.data <  data
+                if actual_node.right is None:
+                    actual_node.right = Node(data)
+                    return
+                actual_node = actual_node.right
 
     def print_inorder(self) -> None:
         """
@@ -223,4 +284,15 @@ class BinarySearchTree:
 
 
 if __name__ == "__main__":
-    ...
+    tree = BinarySearchTree()
+    tree.insert(5)
+    tree.insert(3)
+    tree.insert(10)
+    tree.insert(1)
+    tree.insert(25)
+    tree.insert(35)
+
+    print(tree.find(35))
+    print(tree.find(99))
+    print(tree.recursive_find(3))
+    print(tree.recursive_find(99))
