@@ -103,11 +103,31 @@ class BinarySearchTree:
                     actual_node.left = Node(data)
                     return
                 actual_node = actual_node.left
-            else:# actual_node.data <  data
+            else: # actual_node.data <  data
                 if actual_node.right is None:
                     actual_node.right = Node(data)
                     return
                 actual_node = actual_node.right
+
+
+    def recursive_insert(self, data) -> None:
+        self.root = self._insert_into_subtree(data, self.root)
+
+
+    def _insert_into_subtree(self, data, subtree_root) -> None:
+        # edgecases
+        if subtree_root is None:
+            return Node(data)
+        if subtree_root.data == data:
+            return subtree_root
+        
+        # data needs to be added
+        if subtree_root.data > data:
+            subtree_root.left = self._insert_into_subtree(data, subtree_root.left)
+        elif subtree_root.data < data:
+            subtree_root.right = self._insert_into_subtree(data, subtree_root.right)
+        return subtree_root
+
 
     def print_inorder(self) -> None:
         """
@@ -296,3 +316,5 @@ if __name__ == "__main__":
     print(tree.find(99))
     print(tree.recursive_find(3))
     print(tree.recursive_find(99))
+
+    print("")
