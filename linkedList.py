@@ -185,9 +185,9 @@ class LinkedList:
         if self.head == self.endnode:
             return False
         
-        #* Data in the first node
         actual_node = self.head
         
+        #* Data in the first node
         if self.head.data == data:
             self.head = actual_node.next
             return True
@@ -203,7 +203,6 @@ class LinkedList:
         return False # node wasn't found
     
 
-    # za end_node se omlouvám, ale už jsem ho opravil nazpět
     def delete_all_occurrences(self, data):
         """
         Deletes all nodes with the specified data from the linked list.
@@ -212,13 +211,28 @@ class LinkedList:
             int: The number of deleted nodes.
         """
         deleted_nodes = 0
-        while True:
-            increment = self.delete(data)
+        
+        #* Delete all sought nodes, until some other takes pivot
+        while self.head != self.endnode and self.head.data == data:
+            self.head = self.head.next
+            deleted_nodes += 1
 
-            if increment:
+        #* Check for empty list & for list with just the other pivot
+        if self.head == self.endnode or self.head.next == self.endnode:
+            return deleted_nodes
+
+        #* General
+        previous_node = self.head
+        actual_node = self.head.next
+
+        while actual_node != self.endnode:
+            if actual_node.data == data:
+                previous_node.next = actual_node.next
                 deleted_nodes += 1
             else:
-                return deleted_nodes
+                previous_node = actual_node
+            actual_node = actual_node.next
+        return deleted_nodes
 
 
     def __getitem__(self, index: int):
@@ -404,15 +418,23 @@ if __name__ == "__main__":
     #* Delete all occurances()
     print("")
 
-    print(f"delete all occurances for no occurances: {lst.delete_all_occurrences("C")}" )
+    print(f"delete all occurances for no occurances (C): {lst.delete_all_occurrences("C")}" )
     lst.display()
 
     lst.insert_at_beginning("A")
     lst.insert_at_beginning("A")
     lst.append("A")
     lst.display()
-    print(f"delete all occurances for multiple occurances: {lst.delete_all_occurrences("A")}" )
+    print(f"delete all occurances for multiple occurances (A): {lst.delete_all_occurrences("A")}" )
     lst.display()
+
+    lst.delete("B")
+    for i in range(5):
+        lst.insert_at_beginning("A")
+    lst.display()
+    print(f"delete all occurances for list of all sought nodes (A): {lst.delete_all_occurrences("A")}" )
+    lst.display()
+
 
     # Indexation ... setitem, getitem
     """

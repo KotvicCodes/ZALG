@@ -24,7 +24,7 @@ class Stack:
     def push(self, data):
         """Adds an element to the top of the stack."""
         self.count += 1
-        self.lst.append(data)
+        self.lst.insert_at_beginning(data)
         return 
     
 
@@ -35,7 +35,7 @@ class Stack:
         if self.is_empty():
             raise ValueError("The stack is empty")
         self.count -= 1
-        return self.lst.remove_last()
+        return self.lst.remove_first()
     
 
     def top(self):
@@ -44,7 +44,7 @@ class Stack:
         """
         if self.is_empty():
             raise ValueError("The stack is empty")
-        return self.lst.last()
+        return self.lst.first()
 
 
 class Queue:
