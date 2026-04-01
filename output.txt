@@ -1,0 +1,26 @@
+Directed graph:
+Number of nodes: 6
+Weight from 4 to 0: 1
+Neighbors (descendants) of 0: [4, 2, 3]
+List of edges: [((0, 4), 1), ((0, 2), 5), ((0, 3), 7), ((1, 4), 2), ((1, 0), 7), ((2, 3), 1), ((4, 2), 2), ((4, 0), 1), ((5, 3), 4)]
+
+Undirected graph:
+List of edges: [((0, 1), 4), ((0, 2), 5)]
+
+Test for components:
+List of edges: [((0, 4), 3), ((1, 2), 5), ((1, 3), 7), ((3, 3), 1)]
+Components: [{0, 4}, {1, 2, 3}, {5}]
+
+Test for shortest paths:
+Shortest paths from 0:
+distances: [0, inf, 3, 4, 1, inf], previous: [0, -1, 4, 2, 0, -1]
+from 0 to 3:  [0, 4, 2, 3]
+
+Shortest paths from 1:
+distances: [3, 0, 4, 5, 2, inf], previous: [4, 1, 4, 2, 1, -1]
+from 1 to 0:  [1, 4, 0]
+from 1 to 1:  [1]
+from 1 to 2:  [1, 4, 2]
+from 1 to 3:  [1, 4, 2, 3]
+from 1 to 4:  [1, 4]
+from 1 to 5:  []
