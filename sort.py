@@ -116,6 +116,49 @@ def merge(left, right):
     return array
 
 
+#! QuickSort()
+def quick_sort(a):
+    array = a[:]
+
+    if len(array) <= 1:
+        return array
+
+    pivotIndex = len(array) // 2
+    pivot = array[pivotIndex]
+
+    i = 0
+    j = len(array) - 1
+    iLocked = False
+    jLocked = False
+
+    # compare elements with pivot
+    while i <= j:
+        if not iLocked:
+            if array[i] >= pivot:
+                iLocked = True
+            else:
+                i += 1
+
+        if not jLocked:
+            if array[j] <= pivot:
+                jLocked = True
+            else:
+                j -= 1
+
+        # swap
+        if iLocked and jLocked and i <= j:
+            swap(array, i, j)
+            i += 1
+            j -= 1
+            iLocked = False
+            jLocked = False
+
+    left = quick_sort(array[:j + 1])
+    right = quick_sort(array[i:])
+
+    return left + array[j + 1:i] + right
+
+
 #! Swap (2 Elements by index in a list)
 def swap(a: list, i: int, j: int):
     """swaps a[i] and a[j] in a (list)"""
@@ -124,7 +167,7 @@ def swap(a: list, i: int, j: int):
     a[j] = firstEl
 
 
-# simple test
+#! Tests
 def simple_test(sort_function, a):
     import random
     def single(a):
@@ -148,7 +191,7 @@ def simple_test(sort_function, a):
     return True
  
 def sort_test():
-    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort]
+    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort, quick_sort]
     a = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     b = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     c = [10]
