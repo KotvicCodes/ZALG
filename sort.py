@@ -159,6 +159,36 @@ def quick_sort(a):
     return left + array[j + 1:i] + right
 
 
+def radix_sort(a, k=3):
+    array = a[:]
+
+    for digit in range(k):
+        # build buckets
+        buckets = {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+            6: [],
+            7: [],
+            8: [],
+            9: [],
+        }
+        # sort into buckets
+        for el in array:
+            stringified = str(el)
+            currentDigit = int(stringified[-digit - 1]) if digit < len(stringified) else 0
+            buckets[currentDigit].append(el)
+        
+        # combine back
+        array = []
+        for i in range(10):
+            array.extend(buckets[i])
+    return array
+
+
 #! Swap (2 Elements by index in a list)
 def swap(a: list, i: int, j: int):
     """swaps a[i] and a[j] in a (list)"""
@@ -191,7 +221,7 @@ def simple_test(sort_function, a):
     return True
  
 def sort_test():
-    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort, quick_sort]
+    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort, quick_sort, radix_sort]
     a = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     b = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     c = [10]
