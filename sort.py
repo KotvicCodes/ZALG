@@ -159,9 +159,34 @@ def quick_sort(a):
     return left + array[j + 1:i] + right
 
 
+#! RadixSort()
 def radix_sort(a, k=3):
     array = a[:]
+    pos = []
+    neg = []
 
+    # separate pos & neg values
+    for el in array:
+        if el >= 0:
+            pos.append(el)
+        else:
+            neg.append(-el)
+
+    # sort using Radix
+    sortedPos = radix_sort_pos(pos, k)
+    sortedNeg = radix_sort_pos(neg, k)
+
+    # combine back
+    array = []
+
+    for el in reversed(sortedNeg):
+        array.append(-el)
+    for el in sortedPos:
+        array.append(el)
+
+    return array
+
+def radix_sort_pos(array, k):
     for digit in range(k):
         # build buckets
         buckets = {
@@ -226,6 +251,7 @@ def sort_test():
     b = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     c = [10]
     d = []
+    e = [-1, 45, 13, 2, 90, -69, 1, 3, 27, -5]
     for algorithm in algorithms:
         test_ok = simple_test(algorithm, a)
         assert a == b, f"{algorithm.__name__} modified original array!"
