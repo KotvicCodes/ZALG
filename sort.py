@@ -221,6 +221,44 @@ def radix_sort_pos(array, k):
     return array
 
 
+#! HeapSort()
+#* Main
+def heap_sort(a):
+    array = a[:]
+    n = len(array)
+
+    # build max heap from array
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(array, n, i)
+
+    # extract largest element
+    for i in range(n - 1, 0, -1):
+        array[0], array[i] = array[i], array[0]
+        heapify(array, i, 0)
+    return array
+
+#* Heapify
+def heapify(array, n, i):
+    while True:
+        largest = i
+        left = 2 * i + 1
+        right = 2 * i + 2
+
+        # find largest
+        if left < n and array[left] > array[largest]:
+            largest = left
+
+        if right < n and array[right] > array[largest]:
+            largest = right
+
+        # swap if root is not largest
+        if largest != i:
+            array[i], array[largest] = array[largest], array[i]
+            i = largest
+        else: # done
+            break
+
+
 #! Swap (2 Elements by index in a list)
 def swap(a: list, i: int, j: int):
     """swaps a[i] and a[j] in a (list)"""
@@ -253,7 +291,7 @@ def simple_test(sort_function, a):
     return True
  
 def sort_test():
-    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort, quick_sort, radix_sort]
+    algorithms = [selection_sort, insertion_sort, bubble_sort, shaker_sort, merge_sort, quick_sort, radix_sort, heap_sort]
     a = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     b = [100, 2, 45, 13, 2, 90, 1, 3, 27]
     c = [10]
