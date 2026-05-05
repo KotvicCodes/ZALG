@@ -117,17 +117,24 @@ def merge(left, right):
 
 
 #! QuickSort()
-def quick_sort(a):
-    array = a[:]
+def quick_sort(a, low=0, high=None):
+    array = a
 
-    if len(array) <= 1:
+    # first go only
+    if high is None:
+        array = a[:]
+        high = len(array) - 1
+
+    # subarray of size 0 / 1
+    if low >= high:
         return array
 
-    pivotIndex = len(array) // 2
-    pivot = array[pivotIndex]
+    # partition
+    pivot_index = (low + high) // 2
+    pivot = array[pivot_index]
 
-    i = 0
-    j = len(array) - 1
+    i = low
+    j = high
     iLocked = False
     jLocked = False
 
@@ -138,7 +145,6 @@ def quick_sort(a):
                 iLocked = True
             else:
                 i += 1
-
         if not jLocked:
             if array[j] <= pivot:
                 jLocked = True
@@ -153,10 +159,11 @@ def quick_sort(a):
             iLocked = False
             jLocked = False
 
-    left = quick_sort(array[:j + 1])
-    right = quick_sort(array[i:])
+    # recurse in same array
+    quick_sort(array, low, j)
+    quick_sort(array, i, high)
 
-    return left + array[j + 1:i] + right
+    return array
 
 
 #! RadixSort()
