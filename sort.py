@@ -305,7 +305,9 @@ def sort_test():
         if test_ok:
             test_ok = simple_test(algorithm, d)
         if test_ok:
+            test_ok = simple_test(algorithm, e)
+        if test_ok:
             print(f"Test on {algorithm.__name__} OK")
- 
+
 if __name__ == "__main__":
     sort_test()
