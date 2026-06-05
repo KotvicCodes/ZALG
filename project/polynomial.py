@@ -44,15 +44,23 @@ def getVariable(terms: list) -> str:
     Input: array of terms of the polynomial
 
     Output: string of one character
+
+    Note: currently the polynomials only support a single variable defined by a single char letter,
+    and do not support parameters.
     """
 
     var = ""
 
     for i in range(len(terms)):
         for char in terms[i]:
-            if not char.isdigit():
-                var = char
-                break
+            if char.isalpha():
+                if var == "":
+                    var = char
+                else:
+                    raise ValueError("You cannot use more than one variable")
+
+    if var == "":
+        var = "x"
 
     return var
 
