@@ -258,3 +258,14 @@ assert dictToArray({3: 2}) == [2, 0, 0, 0]
 assert dictToArray({6: 1, 0: 2}) == [1, 0, 0, 0, 0, 0, 2]
 assert dictToArray({0: 5, 3: 2, 1: -1}) == [2, 0, -1, 5]
 assert dictToArray({}) == [0]
+
+#* Find candidates
+assert(findCandidates([1, -3, 2]) == [(1, 1), (-1, 1), (2, 1), (-2, 1)])
+assert(findCandidates([1, -5, 6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1)])
+assert(findCandidates([2, -3, 1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2)])
+assert(findCandidates([6, -11, 6, -1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2), (1, 3), (-1, 3), (1, 6), (-1, 6)])
+assert(findCandidates([1, -1, 0]) == [(0, 1), (1, 1), (-1, 1)])
+assert(findCandidates([1, 0, 0, 0]) == [(0, 1), (1, 1), (-1, 1)])
+assert(findCandidates([1]) == [(1, 1), (-1, 1)])
+assert(findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1),
+                                      (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)])
