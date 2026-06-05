@@ -1,76 +1,110 @@
 #
 
 #! Input Parsing
-input = input("Input the polynomial to factorize: ")
-spaceless = input.replace(" ", "")
-
-# add operator to the start
-if spaceless[0] != "-":
-    spaceless = "+" + spaceless
-
-
 #* Split terms
-terms = []
-currentLength = 0
+def splitTerms(polynomial: str) -> list:
+    """
+    Input: string including polynomial
 
-for num, char in enumerate(reversed(spaceless)):
-    currentLength += 1
-    print(char, num)
+    Output: array of terms of the polynomial
 
-    if char in ["+", "-"]:
-        startIndex = len(spaceless) - num
-        endIndex = len(spaceless) - num + currentLength
+    Note: returns terms in reverse order
+    """
 
-        if char == "+":
-            terms.append(spaceless[startIndex:endIndex-1])
-            print(spaceless[startIndex:endIndex-1])
-        elif char == "-":
-            terms.append(spaceless[startIndex - 1:endIndex-1])
-            print(spaceless[startIndex - 1:endIndex-1])
+    # delete whitespace
+    spaceless = polynomial.replace(" ", "")
 
-        currentLength = 0
+    # add operator to the start
+    if spaceless[0] != "-":
+        spaceless = "+" + spaceless
 
+    # split terms
+    terms = []
+    currentLength = 0
 
-#* Discover variable 
-variable = ""
+    for num, char in enumerate(reversed(spaceless)):
+        currentLength += 1
+        print(char, num)
 
-for i in range(len(terms)):
-    for char in terms[i]:
-        if not char.isdigit():
-            variable = char
-            break
+        if char in ["+", "-"]:
+            startIndex = len(spaceless) - num
+            endIndex = len(spaceless) - num + currentLength
 
-print(f"terms in order: {", ".join(terms)}")
+            if char == "+":
+                terms.append(spaceless[startIndex:endIndex-1])
+                print(spaceless[startIndex:endIndex-1])
+            elif char == "-":
+                terms.append(spaceless[startIndex - 1:endIndex-1])
+                print(spaceless[startIndex - 1:endIndex-1])
 
-
-#* Add terms
-powers = {}
-
-for term in terms:
-    # absolute & linear terms
-    if "^" not in term:
-        if variable in term:
-            term += "^1"
-        else:
-            term += f"{variable}^0"
-    
-    # add leading 1s
-    if term[0] == variable:
-        term = "1" + term
-        print(f"term leading 1: {term}")
-    elif term.startswith(f"-{variable}"):
-        term = "-1" + term[1:]
-        print(f"term leading 2: {term}")
-
-    # the rest of the logic
-    print(term)
-    coeficient = int(term.split(f"{variable}^")[0])
-    power = int(term.split(f"{variable}^")[1])
-
-    if power not in powers:
-        powers[power] = 0
-
-    powers[power] += coeficient
+            currentLength = 0
+    return terms
 
 
-print(f"dict of terms: {powers}")
+#* Get variable
+def getVariable(terms: list) -> str:
+    """
+    Input: array of terms of the polynomial
+
+    Output: string of one character
+    """
+
+    var = ""
+
+    for i in range(len(terms)):
+        for char in terms[i]:
+            if not char.isdigit():
+                var = char
+                break
+
+    return var
+
+
+#* Sum terms
+def sumTerms(var: str, terms: list) -> dict:
+    """
+    Inputs: variable of polynomial (char) & array of terms of the polynomial
+
+    Output: dict, where keys are powers of the variable and values are coeficient before them
+    """
+    powers = {}
+
+    for term in terms:
+        # absolute & linear terms
+        if "^" not in term:
+            if var in term:
+                term += "^1"
+            else:
+                term += f"{var}^0"
+        
+        # add leading 1s
+        if term[0] == var:
+            term = "1" + term
+            print(f"term leading 1: {term}")
+        elif term.startswith(f"-{var}"):
+            term = "-1" + term[1:]
+            print(f"term leading 2: {term}")
+
+        # the rest of the logic
+        print(term)
+        coeficient = int(term.split(f"{var}^")[0])
+        power = int(term.split(f"{var}^")[1])
+
+        if power not in powers:
+            powers[power] = 0
+
+        powers[power] += coeficient
+    return powers
+
+
+#* Parse function
+def parseInput(polynomial: str) -> dict:
+    """
+    Input: string including polynomial
+
+    Output: dict, where keys are powers of the variable and values are coeficient before them
+    """
+
+    terms = splitTerms(polynomial)
+    var = getVariable(terms)
+    return sumTerms(var, terms)
