@@ -51,12 +51,12 @@ def getVariable(terms: list) -> str:
 
     var = ""
 
-    for i in range(len(terms)):
-        for char in terms[i]:
+    for term in terms:
+        for char in term:
             if char.isalpha():
                 if var == "":
                     var = char
-                else:
+                elif var != char:
                     raise ValueError("You cannot use more than one variable")
 
     if var == "":
@@ -127,6 +127,7 @@ assert(splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"])
 assert(getVariable(["13", "-21x"]) == "x")
 assert(getVariable(["15", "1"]) == "x")
 assert(getVariable(["15", "101x^15"]) == "x")
+assert(getVariable(["19x", "2x^2"]) == "x")
 
 try:
     getVariable(["2x", "13y^2", "2"])
