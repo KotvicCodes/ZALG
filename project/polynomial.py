@@ -66,11 +66,11 @@ def getVariable(terms: list[str]) -> str:
 
 
 #* Sum terms
-def sumTerms(var: str, terms: list[str]) -> dict[int, float]:
+def sumTerms(var: str, terms: list[str]) -> dict[int, int]:
     """
     Inputs: variable of polynomial (char) & array of terms of the polynomial
 
-    Output: dict, where keys are powers (int) of the variable and values are their coeficients (float)
+    Output: dict, where keys are powers (int) of the variable and values are their coeficients (int)
     """
     powers = {}
 
@@ -89,7 +89,7 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, float]:
             term = "-1" + term[1:]
 
         # the rest of the logic
-        coef = float(term.split(f"{var}^")[0])
+        coef = int(term.split(f"{var}^")[0])
         power = int(term.split(f"{var}^")[1])
 
         if power not in powers:
@@ -100,11 +100,11 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, float]:
 
 
 #* Parse input
-def parseInput(polynomial: str) -> dict:
+def parseInput(polynomial: str) -> dict[int, int]:
     """
     Input: string including polynomial
 
-    Output: dict, where keys are powers (int) of the variable and values are their coeficients (float)
+    Output: dict, where keys are powers (int) of the variable and values are their coeficients (int)
     """
 
     terms = splitTerms(polynomial)
@@ -114,16 +114,17 @@ def parseInput(polynomial: str) -> dict:
 
 #! Factor Polynomial
 #* Dict to array
-def dictToArray(polynomialDict: dict[int, float]) -> list[float]:
+def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
     """
     Transforms the dict representation of polynomial into the array representation of it.
 
-    Input: dict, where keys are powers (int) of the variable and values are their coeficients (float)
+    Input: dict, where keys are powers (int) of the variable and values are their coeficients (int)
 
     Output: array of coeficients from the highest power descending to the absolute term
 
     Note: empty dictionary is taken as 0 polynomial
     """
+
     # empty dict
     if polynomialDict == {}:
         return [0]
@@ -150,6 +151,55 @@ def dictToArray(polynomialDict: dict[int, float]) -> list[float]:
                 polyArray.append(0)
 
     return polyArray
+
+
+#* Find candidate roots:
+def findCandidates(polyArray: list[int]) -> list[tuple[int, int]]:
+    """
+    Finds all candidates for roots based on Rational root theorem
+
+    Input: array of coeficients from the highest power descending to the absolute term
+
+    Output: array of tupples representing fractions
+    """
+    candidates = []
+
+    # delete trailing zeros
+    hasZeroRoot = False
+    while polyArray[-1] == 0:
+        polyArray = polyArray[:-1]
+        hasZeroRoot = True
+
+    if hasZeroRoot:
+        candidates.append((0, 1))
+
+
+    # divisors of absolute coef
+    absCoef = abs(polyArray[-1])
+    absCoefDivisors = []
+
+    for n in range(1, absCoef // 2 + 1):
+        if absCoef % n == 0:
+            absCoefDivisors.append(n)
+
+    absCoefDivisors.append(absCoef)
+
+    # divisors of leading coef
+    leadCoef = abs(polyArray[0])
+    leadCoefDivisors = []
+
+    for n in range(1, leadCoef // 2 + 1):
+        if leadCoef % n == 0:
+            leadCoefDivisors.append(n)
+
+    leadCoefDivisors.append(leadCoef)
+
+    # candidates
+    for lead in leadCoefDivisors:
+        for ab in absCoefDivisors:
+            candidates.append((ab, lead))
+            candidates.append((-ab, lead))
+    return candidates
 
 
 #! Tests
