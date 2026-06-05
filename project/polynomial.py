@@ -15,7 +15,7 @@ def splitTerms(polynomial: str) -> list:
     spaceless = polynomial.replace(" ", "")
 
     # add operator to the start
-    if spaceless[0] != "-":
+    if spaceless[0] not in ["+", "-"]:
         spaceless = "+" + spaceless
 
     # split terms
@@ -35,7 +35,7 @@ def splitTerms(polynomial: str) -> list:
                 terms.append(spaceless[startIndex - 1:endIndex-1])
 
             currentLength = 0
-    return terms
+    return [t for t in terms if t]
 
 
 #* Get variable
