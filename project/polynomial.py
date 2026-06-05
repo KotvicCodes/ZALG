@@ -24,7 +24,6 @@ def splitTerms(polynomial: str) -> list:
 
     for num, char in enumerate(reversed(spaceless)):
         currentLength += 1
-        print(char, num)
 
         if char in ["+", "-"]:
             startIndex = len(spaceless) - num
@@ -32,10 +31,8 @@ def splitTerms(polynomial: str) -> list:
 
             if char == "+":
                 terms.append(spaceless[startIndex:endIndex-1])
-                print(spaceless[startIndex:endIndex-1])
             elif char == "-":
                 terms.append(spaceless[startIndex - 1:endIndex-1])
-                print(spaceless[startIndex - 1:endIndex-1])
 
             currentLength = 0
     return terms
@@ -80,13 +77,10 @@ def sumTerms(var: str, terms: list) -> dict:
         # add leading 1s
         if term[0] == var:
             term = "1" + term
-            print(f"term leading 1: {term}")
         elif term.startswith(f"-{var}"):
             term = "-1" + term[1:]
-            print(f"term leading 2: {term}")
 
         # the rest of the logic
-        print(term)
         coeficient = int(term.split(f"{var}^")[0])
         power = int(term.split(f"{var}^")[1])
 
@@ -108,3 +102,51 @@ def parseInput(polynomial: str) -> dict:
     terms = splitTerms(polynomial)
     var = getVariable(terms)
     return sumTerms(var, terms)
+
+
+#! Tests
+#* Split terms
+assert(splitTerms("-21x + 13") == ["13", "-21x"])
+assert(splitTerms("-1") == ["-1"])
+assert(splitTerms("+18 + 19 + x^5") == ["x^5", "19", "18"])
+assert(splitTerms("0 + x") == ["x", "0"])
+assert(splitTerms("  -21     x+  13 ") == ["13", "-21x"])
+assert(splitTerms("-42") == ["-42"])
+assert(splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"])
+
+
+#* Get variable
+assert(getVariable(["13", "-21x"]) == "x")
+assert(getVariable(["15", "1"]) == "x")
+assert(getVariable(["15", "101x^15"]) == "x")
+
+try:
+    getVariable(["2x", "13y^2", "2"])
+    assert False
+except ValueError:
+    assert True
+
+#* Sum terms
+assert(sumTerms("x", ["2x^2", "3x", "-5"]) == {2: 2, 1: 3, 0: -5})
+assert(sumTerms("x", ["5", "3", "-2"]) == {0: 6})
+assert(sumTerms("x", ["7x^3"]) == {3: 7})
+assert(sumTerms("x", ["x", "x", "-x"]) == {1: 1})
+assert(sumTerms("x", ["-15", "2x", "3x^12", "-x"]) == {12: 3, 1: 1, 0: -15})
+assert(sumTerms("x", ["2x", "-2x"]) == {1: 0})
+assert(sumTerms("x", ["3x^2", "5x^2", "-2x"]) == {2: 8, 1: -2})
+
+#* Parse input
+assert(parseInput("x^2 - 3x + 1") == {2: 1, 1: -3, 0: 1})
+assert(parseInput("-x^2 + 3x - 1") == {2: -1, 1: 3, 0: -1})
+assert(parseInput("5") == {0: 5})
+assert(parseInput("x") == {1: 1})
+assert(parseInput("-x") == {1: -1})
+assert(parseInput("x - x") == {1: 0})
+assert(parseInput("2y^2 - y + 3") == {2: 2, 1: -1, 0: 3})
+assert(parseInput("3x + 2x - 5") == {1: 5, 0: -5})
+
+try:
+    parseInput("x + y")
+    assert False
+except ValueError:
+    assert True
