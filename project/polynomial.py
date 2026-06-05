@@ -2,7 +2,7 @@
 
 #! Input Parsing
 #* Split terms
-def splitTerms(polynomial: str) -> list:
+def splitTerms(polynomial: str) -> list[str]:
     """
     Input: string including polynomial
 
@@ -39,7 +39,7 @@ def splitTerms(polynomial: str) -> list:
 
 
 #* Get variable
-def getVariable(terms: list) -> str:
+def getVariable(terms: list[str]) -> str:
     """
     Input: array of terms of the polynomial
 
@@ -49,28 +49,28 @@ def getVariable(terms: list) -> str:
     and do not support parameters.
     """
 
-    var = ""
+    var = None
 
     for term in terms:
         for char in term:
             if char.isalpha():
-                if var == "":
+                if var is None:
                     var = char
                 elif var != char:
                     raise ValueError("You cannot use more than one variable")
 
-    if var == "":
+    if var is None:
         var = "x"
 
     return var
 
 
 #* Sum terms
-def sumTerms(var: str, terms: list) -> dict:
+def sumTerms(var: str, terms: list[str]) -> dict[int, float]:
     """
     Inputs: variable of polynomial (char) & array of terms of the polynomial
 
-    Output: dict, where keys are powers of the variable and values are coeficient before them
+    Output: dict, where keys are powers (int) of the variable and values are their coeficients (float)
     """
     powers = {}
 
@@ -89,22 +89,22 @@ def sumTerms(var: str, terms: list) -> dict:
             term = "-1" + term[1:]
 
         # the rest of the logic
-        coeficient = int(term.split(f"{var}^")[0])
+        coef = float(term.split(f"{var}^")[0])
         power = int(term.split(f"{var}^")[1])
 
         if power not in powers:
             powers[power] = 0
 
-        powers[power] += coeficient
+        powers[power] += coef
     return powers
 
 
-#* Parse function
+#* Parse input
 def parseInput(polynomial: str) -> dict:
     """
     Input: string including polynomial
 
-    Output: dict, where keys are powers of the variable and values are coeficient before them
+    Output: dict, where keys are powers (int) of the variable and values are their coeficients (float)
     """
 
     terms = splitTerms(polynomial)
@@ -161,7 +161,6 @@ assert(splitTerms("0 + x") == ["x", "0"])
 assert(splitTerms("  -21     x+  13 ") == ["13", "-21x"])
 assert(splitTerms("-42") == ["-42"])
 assert(splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"])
-
 
 #* Get variable
 assert(getVariable(["13", "-21x"]) == "x")
