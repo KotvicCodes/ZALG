@@ -4,21 +4,32 @@
 input = input("Input the polynomial to factorize: ")
 spaceless = input.replace(" ", "")
 
+# add operator to the start
+if spaceless[0] != "-":
+    spaceless = "+" + spaceless
+
 
 #* Split terms
 terms = []
-termLenght = 0
-polynomialLenght = len(spaceless)
+currentLength = 0
 
-for num, char in enumerate(spaceless):
-    termLenght += 1
+for num, char in enumerate(reversed(spaceless)):
+    currentLength += 1
+    print(char, num)
 
     if char in ["+", "-"]:
-        terms.append(spaceless[(num - termLenght + 1):num])
-        termLenght = 0
+        startIndex = len(spaceless) - num
+        endIndex = len(spaceless) - num + currentLength
 
-    if (num + 1) == polynomialLenght:
-        terms.append(spaceless[(num - termLenght + 1):num + 1])
+        if char == "+":
+            terms.append(spaceless[startIndex:endIndex-1])
+            print(spaceless[startIndex:endIndex-1])
+        elif char == "-":
+            terms.append(spaceless[startIndex - 1:endIndex-1])
+            print(spaceless[startIndex - 1:endIndex-1])
+
+        currentLength = 0
+
 
 #* Discover variable 
 variable = ""
@@ -28,6 +39,8 @@ for i in range(len(terms)):
         if not char.isdigit():
             variable = char
             break
+
+print(f"terms in order: {", ".join(terms)}")
 
 
 #* Add terms
@@ -40,6 +53,14 @@ for term in terms:
             term += "^1"
         else:
             term += f"{variable}^0"
+    
+    # add leading 1s
+    if term[0] == variable:
+        term = "1" + term
+        print(f"term leading 1: {term}")
+    elif term.startswith(f"-{variable}"):
+        term = "-1" + term[1:]
+        print(f"term leading 2: {term}")
 
     # the rest of the logic
     print(term)
@@ -52,6 +73,4 @@ for term in terms:
     powers[power] += coeficient
 
 
-print(f"user's polynomial: {spaceless}")
-print(f"terms in order: {", ".join(terms)}")
 print(f"dict of terms: {powers}")
