@@ -112,6 +112,46 @@ def parseInput(polynomial: str) -> dict:
     return sumTerms(var, terms)
 
 
+#! Factor Polynomial
+#* Dict to array
+def dictToArray(polynomialDict: dict[int, float]) -> list[float]:
+    """
+    Transforms the dict representation of polynomial into the array representation of it.
+
+    Input: dict, where keys are powers (int) of the variable and values are their coeficients (float)
+
+    Output: array of coeficients from the highest power descending to the absolute term
+
+    Note: empty dictionary is taken as 0 polynomial
+    """
+    # empty dict
+    if polynomialDict == {}:
+        return [0]
+    
+    polyArray = []
+    previousPower = None
+
+    # transform dict into array with zero coef for missing powers
+    for power, coef in sorted(polynomialDict.items(), reverse=True):
+        if previousPower is None:
+            polyArray.append(coef)
+        elif previousPower - power == 1:
+            polyArray.append(coef)
+        else:
+            for i in range(previousPower - power - 1):
+                polyArray.append(0)
+            polyArray.append(coef)
+
+        previousPower = power
+
+    # add trailing zeros
+    if previousPower != 0:
+        for i in range(previousPower):
+                polyArray.append(0)
+
+    return polyArray
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
@@ -159,3 +199,13 @@ try:
     assert False
 except ValueError:
     assert True
+
+#* Dict to array
+assert dictToArray({3: 2, 2: 3, 1: -1, 0: 5}) == [2, 3, -1, 5]
+assert dictToArray({3: 2, 1: -1, 0: 5}) == [2, 0, -1, 5]
+assert dictToArray({5: 2, 3: -1, 0: 4}) == [2, 0, -1, 0, 0, 4]
+assert dictToArray({0: 7}) == [7]
+assert dictToArray({3: 2}) == [2, 0, 0, 0]
+assert dictToArray({6: 1, 0: 2}) == [1, 0, 0, 0, 0, 0, 2]
+assert dictToArray({0: 5, 3: 2, 1: -1}) == [2, 0, -1, 5]
+assert dictToArray({}) == [0]
