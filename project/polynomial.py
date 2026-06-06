@@ -558,6 +558,59 @@ def polDictToStr(polDict: dict[int, int], var: str) -> str:
     return getIrreducible(polArray, var)
 
 
+#* Expand polynomial
+def expandPolynomial(factored: str) -> str:
+    """
+    Expands a factored polynomial string back into standard form.
+
+    Input: string in factored form (as produced by factorPolynomial)
+
+    Output: string in standard polynomial form
+    """
+
+    # zero polynomial
+    if factored == "0":
+        return "0"
+
+    # detect variable
+    varMatch = re.search(r'[a-zA-Z]', factored)
+    var = varMatch.group() if varMatch else "x"
+
+    # multiplicative identity - one
+    result = {0: 1}
+    remaining = factored
+
+    # extract leading scalar
+    scalarMatch = re.match(r'^(-?\d+)', remaining)
+
+    if scalarMatch:
+        result = {0: int(scalarMatch.group(1))}
+        remaining = remaining[scalarMatch.end():]
+
+    # extract bare variable (zero root)
+    if remaining.startswith(var):
+        result = multiplyPolDicts(result, {1: 1})
+        remaining = remaining[1:]
+
+    # extract and multiply each bracketed factor
+    while remaining.startswith("("):
+        depth = 0
+
+        for i, char in enumerate(remaining):
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+
+                if depth == 0:
+                    factorDict, _ = parseInput(remaining[1:i])
+                    result = multiplyPolDicts(result, factorDict)
+                    remaining = remaining[i + 1:]
+                    break
+
+    return polDictToStr(normalizeDict(result), var)
+
+
 #! Tests
 #* Split terms
 assert splitTerms("-21x + 13") == ["13", "-21x"]
@@ -720,3 +773,19 @@ assert polDictToStr({2: 1, 1: -3, 0: 2}, "x") == "x^2 - 3x + 2"
 assert polDictToStr({3: 1, 2: -1, 1: 1, 0: -1}, "x") == "x^3 - x^2 + x - 1"
 assert polDictToStr({0: 5}, "x") == "5"
 assert polDictToStr({}, "x") == "0"
+
+#* Expand polynomial
+assert expandPolynomial("(x - 1)(x - 2)") == "x^2 - 3x + 2"
+assert expandPolynomial("2(x - 1)(x - 2)") == "2x^2 - 6x + 4"
+assert expandPolynomial("(x - 1)(x^2 + 1)") == "x^3 - x^2 + x - 1"
+assert expandPolynomial("x(x - 1)") == "x^2 - x"
+assert expandPolynomial("(2x - 1)(3x - 2)") == "6x^2 - 7x + 2"
+assert expandPolynomial("3(y - 1)(2y - 1)") == "6y^2 - 9y + 3"
+assert expandPolynomial("(2y^2 - y + 3)") == "2y^2 - y + 3"
+assert expandPolynomial("5") == "5"
+assert expandPolynomial("0") == "0"
+
+#* Roundtrip tests
+assert expandPolynomial(grandOrchestrator("x^2 - 3x + 2")) == "x^2 - 3x + 2"
+assert expandPolynomial(grandOrchestrator("2x^2 - 6x + 4")) == "2x^2 - 6x + 4"
+assert expandPolynomial(grandOrchestrator("6y^2 - 9y + 3")) == "6y^2 - 9y + 3"
