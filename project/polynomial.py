@@ -308,6 +308,50 @@ def signum(number: int) -> str:
         return ""
 
 
+#* Factor polynomial
+def factorPolynomial(polynomialDict: dict[int, int]) -> str:
+    """
+    Input: dict, where keys are powers of the variable and values are coeficient before them
+
+    Output: string of the factored polynomial
+    """
+
+    # innitialization
+    polArray = dictToArray(polynomialDict)
+    candidates = findCandidates(polArray)
+    factoredPol = ""
+
+    if polArray[0] != 1:
+        factoredPol += str(polArray[0])
+
+    # get roots
+    roots = []
+
+    for can in candidates:
+        while horner(polArray, can):
+            roots.append(can)
+            polArray = deflate(polArray, can)
+
+        if len(polArray) == 1:
+            break
+
+    # rewrite in bracket notation
+    irreducible = getIrreducible(polArray)
+
+    for root in roots:
+        if root[0] == 0:
+            factoredPol += "x"
+        elif root[1] == 1:
+            factoredPol += f"(x {signum(-root[0])} {abs(root[0])})"
+        else:
+            factoredPol += f"({root[1]}x {signum(-root[0])} {abs(root[0])})"
+
+    if irreducible != "":
+        factoredPol += f"({irreducible})"
+
+    return factoredPol
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
@@ -402,3 +446,11 @@ assert(getIrreducible([-1, 1]) == "-x + 1")
 assert(getIrreducible([1, 0, 1]) == "x^2 + 1")
 assert(getIrreducible([1, -3, 2]) == "x^2 - 3x + 2")
 assert(getIrreducible([1]) == "")
+
+#* Factor polynomial
+assert(factorPolynomial({2: 1, 1: -3, 0: 2}) == "(x - 1)(x - 2)")
+assert(factorPolynomial({2: 1, 1: -2, 0: 1}) == "(x - 1)(x - 1)")
+assert(factorPolynomial({2: 1, 1: 3, 0: 2}) == "(x + 1)(x + 2)")
+assert(factorPolynomial({2: 2, 1: -3, 0: 1}) == "2(x - 1)(2x - 1)")
+assert(factorPolynomial({3: 1, 2: -1, 1: 1, 0: -1}) == "(x - 1)(x^2 + 1)")
+assert(factorPolynomial({2: 1, 1: -1, 0: 0}) == "1x(x - 1)")
