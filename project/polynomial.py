@@ -107,6 +107,24 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, int]:
     return powers
 
 
+#* Normalize dictionary
+def normalizeDict(polDict: dict[int, int]) -> dict[int, int]:
+    """
+        Deletes all entries in the dictionary with value 0
+
+        Input: dict, where keys are powers (int) of the variable and values are their coefficients (int)
+
+        Output: dict, where keys are powers (int) of the variable and values are their coefficients (int)
+    """
+
+    newPolDict = {}
+    for power, coef in polDict.items():
+        if coef != 0:
+            newPolDict[power] = coef
+
+    return newPolDict
+
+
 #* Parse input
 def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
     """
@@ -117,7 +135,7 @@ def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
 
     terms = splitTerms(polynomial)
     var = getVariable(terms)
-    return (sumTerms(var, terms), var)
+    return (normalizeDict(sumTerms(var, terms)), var)
 
 
 #! Factor Polynomial
