@@ -2,17 +2,20 @@
 
 #! Import
 from fractions import Fraction
+import re
 
 
 #! Input Parsing
 #* Split terms
 def splitTerms(polynomial: str) -> list[str]:
     """
+    Checks whether input satisfies standard polynomial form, if so splits it into individual terms
+
     Input: string including polynomial
 
     Output: array of terms of the polynomial
 
-    Note: returns terms in reverse order
+    Note: returns terms in reverse order, depends on re (regex) library
     """
 
     # delete spaces and check for empty string
@@ -20,29 +23,62 @@ def splitTerms(polynomial: str) -> list[str]:
 
     if not spaceless:
         raise ValueError("Input polynomial cannot be empty")
+    
+    # multiply numbers with star
+    def multiplyMatch(match):
+        left = int(match.group(1))
+        right = int(match.group(2))
+        return str(left * right)
+
+    while re.search(r'(\d+)\*(\d+)', spaceless):
+        spaceless = re.sub(r'(\d+)\*(\d+)', multiplyMatch, spaceless)
+
+    # delete valid stars
+    for i, char in enumerate(spaceless):
+        if char == "*":
+            if i == 0 or i == len(spaceless) - 1:
+                raise ValueError(f"Invalid use of '*' in '{polynomial}'")
+            if not (spaceless[i-1].isdigit() and spaceless[i+1].isalpha()):
+                raise ValueError(f"Invalid use of '*' in '{polynomial}'")
+
+    starless = spaceless.replace("*", "")
 
     # add operator to the start
-    if spaceless[0] not in ["+", "-"]:
-        spaceless = "+" + spaceless
+    if starless[0] not in ["+", "-"]:
+        starless = "+" + starless
 
     # split terms
     terms = []
     currentLength = 0
 
-    for i, char in enumerate(reversed(spaceless)):
+    for i, char in enumerate(reversed(starless)):
         currentLength += 1
 
         if char in ["+", "-"]:
-            startIndex = len(spaceless) - i
-            endIndex = len(spaceless) - i + currentLength
+            startIndex = len(starless) - i
+            endIndex = len(starless) - i + currentLength
 
             if char == "+":
-                terms.append(spaceless[startIndex:endIndex-1])
+                terms.append(starless[startIndex:endIndex-1])
             elif char == "-":
-                terms.append(spaceless[startIndex - 1:endIndex-1])
+                terms.append(starless[startIndex - 1:endIndex-1])
 
             currentLength = 0
-    return [t for t in terms if t]
+
+    terms = [t for t in terms if t]
+
+    # validate terms
+    for term in terms:
+        if '.' in term or "," in term:
+            raise ValueError(f"Only integer coefficients are supported, got '{term}'")
+    
+    validTerm = re.compile(r'^-?(\d+[a-zA-Z]?|[a-zA-Z])(\^\d+)?$')
+    for term in terms:
+        if not validTerm.match(term):
+            raise ValueError(f"Malformed term: '{term}'")
+    
+    # return
+    return terms
 
 
 #* Get variable
@@ -410,6 +446,26 @@ assert(splitTerms("0 + x") == ["x", "0"])
 assert(splitTerms("  -21     x+  13 ") == ["13", "-21x"])
 assert(splitTerms("-42") == ["-42"])
 assert(splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"])
+assert splitTerms("2*x^2 + 3*x - 5") == splitTerms("2x^2 + 3x - 5")
+assert splitTerms("2*3x^2") == splitTerms("6x^2")
+
+try:
+    splitTerms("2.5x^2 + 1")
+    assert False
+except ValueError:
+    assert True
+
+try:
+    splitTerms("2x +* 1")
+    assert False
+except ValueError:
+    assert True
+
+try:
+    splitTerms("2.5x^2 + 1")
+    assert False
+except ValueError as e:
+    assert "integer" in str(e)
 
 #* Get variable
 assert(getVariable(["13", "-21x"]) == "x")
