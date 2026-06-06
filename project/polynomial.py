@@ -283,10 +283,12 @@ def getIrreducible(polArray: list[int]) -> str:
                     else:
                         irreducible += " - "
                 
+                coefStr = "" if abs(coef) == 1 and power > 0 else str(abs(coef))
+
                 if power > 1:
-                    irreducible += f"{abs(coef)}x^{power}"
+                    irreducible += f"{coefStr}x^{power}"
                 elif power == 1:
-                    irreducible += f"{abs(coef)}x"
+                    irreducible += f"{coefStr}x"
                 elif power == 0:
                     irreducible += f"{abs(coef)}"
             
@@ -453,4 +455,4 @@ assert(factorPolynomial({2: 1, 1: -2, 0: 1}) == "(x - 1)(x - 1)")
 assert(factorPolynomial({2: 1, 1: 3, 0: 2}) == "(x + 1)(x + 2)")
 assert(factorPolynomial({2: 2, 1: -3, 0: 1}) == "2(x - 1)(2x - 1)")
 assert(factorPolynomial({3: 1, 2: -1, 1: 1, 0: -1}) == "(x - 1)(x^2 + 1)")
-assert(factorPolynomial({2: 1, 1: -1, 0: 0}) == "1x(x - 1)")
+assert(factorPolynomial({2: 1, 1: -1, 0: 0}) == "x(x - 1)")
