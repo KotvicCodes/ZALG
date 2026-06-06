@@ -140,7 +140,7 @@ def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
 
 #! Factor Polynomial
 #* Dict to array
-def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
+def dictToArray(polDict: dict[int, int]) -> list[int]:
     """
     Transforms the dict representation of polynomial into the array representation of it.
 
@@ -152,14 +152,14 @@ def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
     """
 
     # empty dict
-    if polynomialDict == {}:
+    if polDict == {}:
         return [0]
     
     polArray = []
     previousPower = None
 
     # transform dict into array with zero coef for missing powers
-    for power, coef in sorted(polynomialDict.items(), reverse=True):
+    for power, coef in sorted(polDict.items(), reverse=True):
         if previousPower is None:
             polArray.append(coef)
         elif previousPower - power == 1:
@@ -342,13 +342,17 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
     """
 
     # initialization
-    polynomialDict = initTuple[0]
+    polDict = initTuple[0]
     var = initTuple[1]
 
-    polArray = dictToArray(polynomialDict)
+    polArray = dictToArray(polDict)
     candidates = findCandidates(polArray)
     leadingCoef = polArray[0]
     factoredPol = ""
+
+    # check for constant polynom
+    if len(polArray) == 1:
+        return str(polArray[0])
 
     # get roots
     roots = []
@@ -425,7 +429,7 @@ assert(parseInput("-x^2 + 3x - 1") == ({2: -1, 1: 3, 0: -1}, "x"))
 assert(parseInput("5") == ({0: 5}, "x"))
 assert(parseInput("x") == ({1: 1}, "x"))
 assert(parseInput("-x") == ({1: -1}, "x"))
-assert(parseInput("x - x") == ({1: 0}, "x"))
+assert(parseInput("x - x") == ({}, "x"))
 assert(parseInput("2y^2 - y + 3") == ({2: 2, 1: -1, 0: 3}, "y"))
 assert(parseInput("3x + 2x - 5") == ({1: 5, 0: -5}, "x"))
 
@@ -498,3 +502,5 @@ assert(factorPolynomial(({2: 6, 1: -9, 0: 3}, "x")) == "3(x - 1)(2x - 1)")
 assert(factorPolynomial(({2: 2, 1: -1, 0: 3}, "y")) == "(2y^2 - y + 3)")
 assert(factorPolynomial(({2: 1, 1: -3, 0: 2}, "y")) == "(y - 1)(y - 2)")
 assert(factorPolynomial(({2: 6, 1: -9, 0: 3}, "y")) == "3(y - 1)(2y - 1)")
+assert factorPolynomial(({0: 5}, "x")) == "5"
+assert factorPolynomial(({2: 1, 1: -3, 0: 2}, "x")) == "(x - 1)(x - 2)"
