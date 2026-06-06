@@ -535,6 +535,29 @@ def multiplyPolDicts(pol1: dict[int, int], pol2: dict[int, int]) -> dict[int, in
     return result
 
 
+#* Polynomial dictionary to string
+def polDictToStr(polDict: dict[int, int], var: str) -> str:
+    """
+    Converts a polynomial dict into a string.
+
+    Input: dictionary where keys are powers (int) and values are coefficients (int), and variable (str)
+
+    Output: string representation of the polynomial
+    """
+
+    # zero polynomial
+    if not polDict:
+        return "0"
+
+    polArray = dictToArray(polDict)
+
+    # constant case (skipped by getIrreducible)
+    if len(polArray) == 1:
+        return str(polArray[0])
+
+    return getIrreducible(polArray, var)
+
+
 #! Tests
 #* Split terms
 assert splitTerms("-21x + 13") == ["13", "-21x"]
@@ -691,3 +714,9 @@ assert multiplyPolDicts({1: 1, 0: -1}, {1: 1, 0: -2}) == {2: 1, 1: -3, 0: 2}
 assert multiplyPolDicts({0: 2}, {2: 1, 0: 1}) == {2: 2, 0: 2}
 assert multiplyPolDicts({2: 1, 0: 1}, {1: 1, 0: -1}) == {3: 1, 2: -1, 1: 1, 0: -1}
 assert multiplyPolDicts({0: 3}, {1: 1, 0: -4}) == {1: 3, 0: -12}
+
+#* Polynomial dictionary to string
+assert polDictToStr({2: 1, 1: -3, 0: 2}, "x") == "x^2 - 3x + 2"
+assert polDictToStr({3: 1, 2: -1, 1: 1, 0: -1}, "x") == "x^3 - x^2 + x - 1"
+assert polDictToStr({0: 5}, "x") == "5"
+assert polDictToStr({}, "x") == "0"
