@@ -478,6 +478,42 @@ def processFile(filename: str) -> None:
             print(f"Line {i}: invalid input ({e})")
 
 
+#* Keyboard loop
+
+def keyboardLoop() -> None:
+    """
+    Repeatedly reads polynomials from keyboard input and prints factored results.
+    Type 'file' to process a file, 'exit' to quit.
+    """
+
+    print("Polynomial Factory©")
+    print(" ✨brought to you by Kotvič✨\n")
+    print("Type 'file' to load from file, 'exit' to quit\n")
+
+    while True:
+        pol = input("> ").strip()
+
+        if not pol:
+            continue
+        elif pol == "exit":
+            break
+        elif pol == "file":
+            filename = input("Filename: ").strip()
+            try:
+                processFile(filename)
+            except ValueError as e:
+                print(f"Error: {e}")
+        else:
+            try:
+                result = grandOrchestrator(pol)
+                print(f"= {result}\n")
+            except ValueError as e:
+                print(f"Invalid input: {e}\n")
+
+if __name__ == "__main__":
+    keyboardLoop()
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
