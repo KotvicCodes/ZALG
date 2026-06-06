@@ -568,17 +568,20 @@ def expandPolynomial(factored: str) -> str:
     Output: string in standard polynomial form
     """
 
+    # delete spaces
+    spaceless = factored.replace(" ", "")
+
     # zero polynomial
-    if factored == "0":
+    if spaceless == "0":
         return "0"
 
     # detect variable
-    varMatch = re.search(r'[a-zA-Z]', factored)
+    varMatch = re.search(r'[a-zA-Z]', spaceless)
     var = varMatch.group() if varMatch else "x"
 
     # multiplicative identity - one
     result = {0: 1}
-    remaining = factored
+    remaining = spaceless
 
     # extract leading scalar
     scalarMatch = re.match(r'^(-?\d+)', remaining)
