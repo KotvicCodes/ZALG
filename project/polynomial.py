@@ -105,16 +105,16 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, int]:
 
 
 #* Parse input
-def parseInput(polynomial: str) -> dict[int, int]:
+def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
     """
     Input: string including polynomial
 
-    Output: dict, where keys are powers (int) of the variable and values are their coefficients (int)
+    Output: tupple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
     """
 
     terms = splitTerms(polynomial)
     var = getVariable(terms)
-    return sumTerms(var, terms)
+    return (sumTerms(var, terms), var)
 
 
 #! Factor Polynomial
@@ -262,7 +262,7 @@ def deflate(polArray: list[int], root: tuple[int, int]) -> list[int]:
 
 
 #* Get irreducible factor
-def getIrreducible(polArray: list[int]) -> str:
+def getIrreducible(polArray: list[int], var: str) -> str:
     """
     Transforms array representing irreducible factor into a string
 
@@ -288,9 +288,9 @@ def getIrreducible(polArray: list[int]) -> str:
                 coefStr = "" if abs(coef) == 1 and power > 0 else str(abs(coef))
 
                 if power > 1:
-                    irreducible += f"{coefStr}x^{power}"
+                    irreducible += f"{coefStr}{var}^{power}"
                 elif power == 1:
-                    irreducible += f"{coefStr}x"
+                    irreducible += f"{coefStr}{var}"
                 elif power == 0:
                     irreducible += f"{abs(coef)}"
             
@@ -313,14 +313,17 @@ def signum(number: int) -> str:
 
 
 #* Factor polynomial
-def factorPolynomial(polynomialDict: dict[int, int]) -> str:
+def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
     """
-    Input: dict, where keys are powers of the variable and values are coefficient before them
+    Input: tupple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
 
     Output: string of the factored polynomial
     """
 
     # initialization
+    polynomialDict = initTuple[0]
+    var = initTuple[1]
+
     polArray = dictToArray(polynomialDict)
     candidates = findCandidates(polArray)
     leadingCoef = polArray[0]
@@ -347,15 +350,15 @@ def factorPolynomial(polynomialDict: dict[int, int]) -> str:
         factoredPol += str(scalar)
 
     # rewrite in bracket notation
-    irreducible = getIrreducible(polArray)
+    irreducible = getIrreducible(polArray, var)
 
     for root in roots:
         if root[0] == 0:
-            factoredPol += "x"
+            factoredPol += var
         elif root[1] == 1:
-            factoredPol += f"(x {signum(-root[0])} {abs(root[0])})"
+            factoredPol += f"({var} {signum(-root[0])} {abs(root[0])})"
         else:
-            factoredPol += f"({root[1]}x {signum(-root[0])} {abs(root[0])})"
+            factoredPol += f"({root[1]}{var} {signum(-root[0])} {abs(root[0])})"
 
     if irreducible != "":
         factoredPol += f"({irreducible})"
@@ -395,14 +398,14 @@ assert(sumTerms("x", ["2x", "-2x"]) == {1: 0})
 assert(sumTerms("x", ["3x^2", "5x^2", "-2x"]) == {2: 8, 1: -2})
 
 #* Parse input
-assert(parseInput("x^2 - 3x + 1") == {2: 1, 1: -3, 0: 1})
-assert(parseInput("-x^2 + 3x - 1") == {2: -1, 1: 3, 0: -1})
-assert(parseInput("5") == {0: 5})
-assert(parseInput("x") == {1: 1})
-assert(parseInput("-x") == {1: -1})
-assert(parseInput("x - x") == {1: 0})
-assert(parseInput("2y^2 - y + 3") == {2: 2, 1: -1, 0: 3})
-assert(parseInput("3x + 2x - 5") == {1: 5, 0: -5})
+assert(parseInput("x^2 - 3x + 1") == ({2: 1, 1: -3, 0: 1}, "x"))
+assert(parseInput("-x^2 + 3x - 1") == ({2: -1, 1: 3, 0: -1}, "x"))
+assert(parseInput("5") == ({0: 5}, "x"))
+assert(parseInput("x") == ({1: 1}, "x"))
+assert(parseInput("-x") == ({1: -1}, "x"))
+assert(parseInput("x - x") == ({1: 0}, "x"))
+assert(parseInput("2y^2 - y + 3") == ({2: 2, 1: -1, 0: 3}, "y"))
+assert(parseInput("3x + 2x - 5") == ({1: 5, 0: -5}, "x"))
 
 try:
     parseInput("x + y")
@@ -451,20 +454,25 @@ except ValueError:
     assert True
 
 #* Get irreducible factor
-assert(getIrreducible([1, -1]) == "x - 1")
-assert(getIrreducible([1, 1]) == "x + 1")
-assert(getIrreducible([-1, 1]) == "-x + 1")
-assert(getIrreducible([1, 0, 1]) == "x^2 + 1")
-assert(getIrreducible([1, -3, 2]) == "x^2 - 3x + 2")
-assert(getIrreducible([1]) == "")
+assert(getIrreducible([1, -1], "x") == "x - 1")
+assert(getIrreducible([1, 1], "x") == "x + 1")
+assert(getIrreducible([-1, 1], "x") == "-x + 1")
+assert(getIrreducible([1, 0, 1], "x") == "x^2 + 1")
+assert(getIrreducible([1, -3, 2], "x") == "x^2 - 3x + 2")
+assert(getIrreducible([1], "x") == "")
+assert(getIrreducible([1, -1], "y") == "y - 1")
+assert(getIrreducible([1, 0, 1], "y") == "y^2 + 1")
 
 #* Factor polynomial
-assert(factorPolynomial({2: 1, 1: -3, 0: 2}) == "(x - 1)(x - 2)")
-assert(factorPolynomial({2: 1, 1: -2, 0: 1}) == "(x - 1)(x - 1)")
-assert(factorPolynomial({2: 1, 1: 3, 0: 2}) == "(x + 1)(x + 2)")
-assert(factorPolynomial({3: 1, 2: -1, 1: 1, 0: -1}) == "(x - 1)(x^2 + 1)")
-assert(factorPolynomial({2: 1, 1: -1, 0: 0}) == "x(x - 1)")
-assert(factorPolynomial({2: 2, 1: -6, 0: 4}) == "2(x - 1)(x - 2)")
-assert(factorPolynomial({2: 2, 1: -3, 0: 1}) == "(x - 1)(2x - 1)")
-assert(factorPolynomial({2: 6, 1: -7, 0: 2}) == "(2x - 1)(3x - 2)")
-assert(factorPolynomial({2: 6, 1: -9, 0: 3}) == "3(x - 1)(2x - 1)")
+assert(factorPolynomial(({2: 1, 1: -3, 0: 2}, "x")) == "(x - 1)(x - 2)")
+assert(factorPolynomial(({2: 1, 1: -2, 0: 1}, "x")) == "(x - 1)(x - 1)")
+assert(factorPolynomial(({2: 1, 1: 3, 0: 2}, "x")) == "(x + 1)(x + 2)")
+assert(factorPolynomial(({3: 1, 2: -1, 1: 1, 0: -1}, "x")) == "(x - 1)(x^2 + 1)")
+assert(factorPolynomial(({2: 1, 1: -1, 0: 0}, "x")) == "x(x - 1)")
+assert(factorPolynomial(({2: 2, 1: -6, 0: 4}, "x")) == "2(x - 1)(x - 2)")
+assert(factorPolynomial(({2: 2, 1: -3, 0: 1}, "x")) == "(x - 1)(2x - 1)")
+assert(factorPolynomial(({2: 6, 1: -7, 0: 2}, "x")) == "(2x - 1)(3x - 2)")
+assert(factorPolynomial(({2: 6, 1: -9, 0: 3}, "x")) == "3(x - 1)(2x - 1)")
+assert(factorPolynomial(({2: 2, 1: -1, 0: 3}, "y")) == "(2y^2 - y + 3)")
+assert(factorPolynomial(({2: 1, 1: -3, 0: 2}, "y")) == "(y - 1)(y - 2)")
+assert(factorPolynomial(({2: 6, 1: -9, 0: 3}, "y")) == "3(y - 1)(2y - 1)")
