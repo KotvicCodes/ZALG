@@ -444,6 +444,40 @@ def grandOrchestrator(polynomial: str) -> str:
     return factorPolynomial(parseInput(polynomial))
 
 
+#* Process file
+def processFile(filename: str) -> None:
+    """
+    Reads polynomials from a file, one per line, and prints factored results.
+
+    Input: path to a text file
+
+    Output: None (prints to console)
+    """
+
+    # open file
+    try:
+        with open(filename, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        raise ValueError(f"File '{filename}' not found")
+    except OSError:
+        raise ValueError(f"Could not read file '{filename}'")
+
+    # prepare lines
+    for i, line in enumerate(lines, start=1):
+        stripped = line.strip()
+
+        if not stripped:
+            continue
+
+        # evaluate line
+        try:
+            result = grandOrchestrator(stripped)
+            print(f"Line {i}: {stripped} = {result}")
+        except ValueError as e:
+            print(f"Line {i}: invalid input ({e})")
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
