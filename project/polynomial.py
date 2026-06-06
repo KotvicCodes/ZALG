@@ -1,5 +1,9 @@
 #
 
+#! Import
+from fractions import Fraction
+
+
 #! Input Parsing
 #* Split terms
 def splitTerms(polynomial: str) -> list[str]:
@@ -202,6 +206,28 @@ def findCandidates(polyArray: list[int]) -> list[tuple[int, int]]:
     return candidates
 
 
+#* Horner's scheme
+def horner(pol: list[int], candidate: tuple[int, int]) -> bool:
+    """
+    Finds whether a candidate is a root of the polynomial
+
+    Input: array of coeficients from the highest power descending to the absolute term
+    and a single candidate depicted by a tupple (p, q) representing a fraction p/q
+
+    Output: boolean value where True implies candidate is root and False means it's not
+
+    Note: This function depends on fractions library
+    """
+
+    result = pol[0]
+    x = Fraction(candidate[0], candidate[1])
+
+    for coef in pol[1:]:
+        result = result * x + coef
+
+    return result == 0
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
@@ -267,5 +293,12 @@ assert(findCandidates([6, -11, 6, -1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2), (1,
 assert(findCandidates([1, -1, 0]) == [(0, 1), (1, 1), (-1, 1)])
 assert(findCandidates([1, 0, 0, 0]) == [(0, 1), (1, 1), (-1, 1)])
 assert(findCandidates([1]) == [(1, 1), (-1, 1)])
-assert(findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1),
-                                      (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)])
+assert(findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1), (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)])
+
+#* Horner's scheme
+assert(horner([1, -3, 2], (1, 1)))
+assert(horner([1, -3, 2], (2, 1)))
+assert(not horner([1, -3, 2], (3, 1)))
+assert(horner([2, -3, 1], (1, 2)))
+assert(horner([1, -1, 0], (0, 1)))
+assert(not horner([5], (1, 1)))
