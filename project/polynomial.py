@@ -505,13 +505,13 @@ def keyboardLoop() -> None:
                 print(f"Error: {e}")
         else:
             try:
-                result = grandOrchestrator(pol)
+                if "(" in pol:
+                    result = expandPolynomial(pol)
+                else:
+                    result = grandOrchestrator(pol)
                 print(f"= {result}\n")
             except ValueError as e:
                 print(f"Invalid input: {e}\n")
-
-if __name__ == "__main__":
-    keyboardLoop()
 
 
 #! Expand Polynomial
@@ -612,180 +612,187 @@ def expandPolynomial(factored: str) -> str:
 
 
 #! Tests
-#* Split terms
-assert splitTerms("-21x + 13") == ["13", "-21x"]
-assert splitTerms("-1") == ["-1"]
-assert splitTerms("+18 + 19 + x^5") == ["x^5", "19", "18"]
-assert splitTerms("0 + x") == ["x", "0"]
-assert splitTerms("  -21     x+  13 ") == ["13", "-21x"]
-assert splitTerms("-42") == ["-42"]
-assert splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"]
-assert splitTerms("2*x^2 + 3*x - 5") == splitTerms("2x^2 + 3x - 5")
-assert splitTerms("2*3x^2") == splitTerms("6x^2")
+def test():
+    #* Split terms
+    assert splitTerms("-21x + 13") == ["13", "-21x"]
+    assert splitTerms("-1") == ["-1"]
+    assert splitTerms("+18 + 19 + x^5") == ["x^5", "19", "18"]
+    assert splitTerms("0 + x") == ["x", "0"]
+    assert splitTerms("  -21     x+  13 ") == ["13", "-21x"]
+    assert splitTerms("-42") == ["-42"]
+    assert splitTerms("x^2 - 3x + 1") == ["1", "-3x", "x^2"]
+    assert splitTerms("2*x^2 + 3*x - 5") == splitTerms("2x^2 + 3x - 5")
+    assert splitTerms("2*3x^2") == splitTerms("6x^2")
 
-try:
-    splitTerms("2x +* 1")
-    assert False
-except ValueError:
-    assert True
+    try:
+        splitTerms("2x +* 1")
+        assert False
+    except ValueError:
+        assert True
 
-try:
-    splitTerms("2.5x^2 + 1")
-    assert False
-except ValueError as e:
-    assert "integer" in str(e)
+    try:
+        splitTerms("2.5x^2 + 1")
+        assert False
+    except ValueError as e:
+        assert "integer" in str(e)
 
-#* Get variable
-assert getVariable(["13", "-21x"]) == "x"
-assert getVariable(["15", "1"]) == "x"
-assert getVariable(["15", "101x^15"]) == "x"
-assert getVariable(["19x", "2x^2"]) == "x"
+    #* Get variable
+    assert getVariable(["13", "-21x"]) == "x"
+    assert getVariable(["15", "1"]) == "x"
+    assert getVariable(["15", "101x^15"]) == "x"
+    assert getVariable(["19x", "2x^2"]) == "x"
 
-try:
-    getVariable(["2x", "13y^2", "2"])
-    assert False
-except ValueError:
-    assert True
+    try:
+        getVariable(["2x", "13y^2", "2"])
+        assert False
+    except ValueError:
+        assert True
 
-#* Sum terms
-assert sumTerms("x", ["2x^2", "3x", "-5"]) == {2: 2, 1: 3, 0: -5}
-assert sumTerms("x", ["5", "3", "-2"]) == {0: 6}
-assert sumTerms("x", ["7x^3"]) == {3: 7}
-assert sumTerms("x", ["x", "x", "-x"]) == {1: 1}
-assert sumTerms("x", ["-15", "2x", "3x^12", "-x"]) == {12: 3, 1: 1, 0: -15}
-assert sumTerms("x", ["2x", "-2x"]) == {1: 0}
-assert sumTerms("x", ["3x^2", "5x^2", "-2x"]) == {2: 8, 1: -2}
+    #* Sum terms
+    assert sumTerms("x", ["2x^2", "3x", "-5"]) == {2: 2, 1: 3, 0: -5}
+    assert sumTerms("x", ["5", "3", "-2"]) == {0: 6}
+    assert sumTerms("x", ["7x^3"]) == {3: 7}
+    assert sumTerms("x", ["x", "x", "-x"]) == {1: 1}
+    assert sumTerms("x", ["-15", "2x", "3x^12", "-x"]) == {12: 3, 1: 1, 0: -15}
+    assert sumTerms("x", ["2x", "-2x"]) == {1: 0}
+    assert sumTerms("x", ["3x^2", "5x^2", "-2x"]) == {2: 8, 1: -2}
 
-try:
-    sumTerms("x", ["2x3"])
-    assert False
-except ValueError:
-    assert True
+    try:
+        sumTerms("x", ["2x3"])
+        assert False
+    except ValueError:
+        assert True
 
-try:
-    sumTerms("x", ["2.5x^2"])
-    assert False
-except ValueError:
-    assert True
+    try:
+        sumTerms("x", ["2.5x^2"])
+        assert False
+    except ValueError:
+        assert True
 
-#* Parse input
-assert parseInput("x^2 - 3x + 1") == ({2: 1, 1: -3, 0: 1}, "x")
-assert parseInput("-x^2 + 3x - 1") == ({2: -1, 1: 3, 0: -1}, "x")
-assert parseInput("5") == ({0: 5}, "x")
-assert parseInput("x") == ({1: 1}, "x")
-assert parseInput("-x") == ({1: -1}, "x")
-assert parseInput("x - x") == ({}, "x")
-assert parseInput("2y^2 - y + 3") == ({2: 2, 1: -1, 0: 3}, "y")
-assert parseInput("3x + 2x - 5") == ({1: 5, 0: -5}, "x")
+    #* Parse input
+    assert parseInput("x^2 - 3x + 1") == ({2: 1, 1: -3, 0: 1}, "x")
+    assert parseInput("-x^2 + 3x - 1") == ({2: -1, 1: 3, 0: -1}, "x")
+    assert parseInput("5") == ({0: 5}, "x")
+    assert parseInput("x") == ({1: 1}, "x")
+    assert parseInput("-x") == ({1: -1}, "x")
+    assert parseInput("x - x") == ({}, "x")
+    assert parseInput("2y^2 - y + 3") == ({2: 2, 1: -1, 0: 3}, "y")
+    assert parseInput("3x + 2x - 5") == ({1: 5, 0: -5}, "x")
 
-try:
-    parseInput("x + y")
-    assert False
-except ValueError:
-    assert True
+    try:
+        parseInput("x + y")
+        assert False
+    except ValueError:
+        assert True
 
-#* Dict to array
-assert dictToArray({3: 2, 2: 3, 1: -1, 0: 5}) == [2, 3, -1, 5]
-assert dictToArray({3: 2, 1: -1, 0: 5}) == [2, 0, -1, 5]
-assert dictToArray({5: 2, 3: -1, 0: 4}) == [2, 0, -1, 0, 0, 4]
-assert dictToArray({0: 7}) == [7]
-assert dictToArray({3: 2}) == [2, 0, 0, 0]
-assert dictToArray({6: 1, 0: 2}) == [1, 0, 0, 0, 0, 0, 2]
-assert dictToArray({0: 5, 3: 2, 1: -1}) == [2, 0, -1, 5]
-assert dictToArray({}) == [0]
+    #* Dict to array
+    assert dictToArray({3: 2, 2: 3, 1: -1, 0: 5}) == [2, 3, -1, 5]
+    assert dictToArray({3: 2, 1: -1, 0: 5}) == [2, 0, -1, 5]
+    assert dictToArray({5: 2, 3: -1, 0: 4}) == [2, 0, -1, 0, 0, 4]
+    assert dictToArray({0: 7}) == [7]
+    assert dictToArray({3: 2}) == [2, 0, 0, 0]
+    assert dictToArray({6: 1, 0: 2}) == [1, 0, 0, 0, 0, 0, 2]
+    assert dictToArray({0: 5, 3: 2, 1: -1}) == [2, 0, -1, 5]
+    assert dictToArray({}) == [0]
 
-#* Find candidates
-assert findCandidates([1, -3, 2]) == [(1, 1), (-1, 1), (2, 1), (-2, 1)]
-assert findCandidates([1, -5, 6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1)]
-assert findCandidates([2, -3, 1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2)]
-assert findCandidates([6, -11, 6, -1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2), (1, 3), (-1, 3), (1, 6), (-1, 6)]
-assert findCandidates([1, -1, 0]) == [(0, 1), (1, 1), (-1, 1)]
-assert findCandidates([1, 0, 0, 0]) == [(0, 1), (1, 1), (-1, 1)]
-assert findCandidates([1]) == [(1, 1), (-1, 1)]
-assert findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1), (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)]
+    #* Find candidates
+    assert findCandidates([1, -3, 2]) == [(1, 1), (-1, 1), (2, 1), (-2, 1)]
+    assert findCandidates([1, -5, 6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1)]
+    assert findCandidates([2, -3, 1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2)]
+    assert findCandidates([6, -11, 6, -1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2), (1, 3), (-1, 3), (1, 6), (-1, 6)]
+    assert findCandidates([1, -1, 0]) == [(0, 1), (1, 1), (-1, 1)]
+    assert findCandidates([1, 0, 0, 0]) == [(0, 1), (1, 1), (-1, 1)]
+    assert findCandidates([1]) == [(1, 1), (-1, 1)]
+    assert findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1), (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)]
 
-#* Horner's scheme
-assert horner([1, -3, 2], (1, 1))
-assert horner([1, -3, 2], (2, 1))
-assert not horner([1, -3, 2], (3, 1))
-assert horner([2, -3, 1], (1, 2))
-assert horner([1, -1, 0], (0, 1))
-assert not horner([5], (1, 1))
+    #* Horner's scheme
+    assert horner([1, -3, 2], (1, 1))
+    assert horner([1, -3, 2], (2, 1))
+    assert not horner([1, -3, 2], (3, 1))
+    assert horner([2, -3, 1], (1, 2))
+    assert horner([1, -1, 0], (0, 1))
+    assert not horner([5], (1, 1))
 
-#* Deflate polynomial
-assert deflate([1, -3, 2], (1, 1)) == [1, -2]
-assert deflate([1, -3, 2], (2, 1)) == [1, -1]
-assert deflate([2, -3, 1], (1, 2)) == [2, -2]
-assert deflate([1, -6, 11, -6], (1, 1)) == [1, -5, 6]
+    #* Deflate polynomial
+    assert deflate([1, -3, 2], (1, 1)) == [1, -2]
+    assert deflate([1, -3, 2], (2, 1)) == [1, -1]
+    assert deflate([2, -3, 1], (1, 2)) == [2, -2]
+    assert deflate([1, -6, 11, -6], (1, 1)) == [1, -5, 6]
 
-try:
-    deflate([1, -3, 2], (3, 1))
-    assert False
-except ValueError:
-    assert True
+    try:
+        deflate([1, -3, 2], (3, 1))
+        assert False
+    except ValueError:
+        assert True
 
-#* Get irreducible factor
-assert getIrreducible([1, -1], "x") == "x - 1"
-assert getIrreducible([1, 1], "x") == "x + 1"
-assert getIrreducible([-1, 1], "x") == "-x + 1"
-assert getIrreducible([1, 0, 1], "x") == "x^2 + 1"
-assert getIrreducible([1, -3, 2], "x") == "x^2 - 3x + 2"
-assert getIrreducible([1], "x") == ""
-assert getIrreducible([1, -1], "y") == "y - 1"
-assert getIrreducible([1, 0, 1], "y") == "y^2 + 1"
+    #* Get irreducible factor
+    assert getIrreducible([1, -1], "x") == "x - 1"
+    assert getIrreducible([1, 1], "x") == "x + 1"
+    assert getIrreducible([-1, 1], "x") == "-x + 1"
+    assert getIrreducible([1, 0, 1], "x") == "x^2 + 1"
+    assert getIrreducible([1, -3, 2], "x") == "x^2 - 3x + 2"
+    assert getIrreducible([1], "x") == ""
+    assert getIrreducible([1, -1], "y") == "y - 1"
+    assert getIrreducible([1, 0, 1], "y") == "y^2 + 1"
 
-#* Factor polynomial
-assert factorPolynomial(({2: 1, 1: -2, 0: 1}, "x")) == "(x - 1)(x - 1)"
-assert factorPolynomial(({2: 1, 1: 3, 0: 2}, "x")) == "(x + 1)(x + 2)"
-assert factorPolynomial(({3: 1, 2: -1, 1: 1, 0: -1}, "x")) == "(x - 1)(x^2 + 1)"
-assert factorPolynomial(({2: 1, 1: -1, 0: 0}, "x")) == "x(x - 1)"
-assert factorPolynomial(({2: 2, 1: -6, 0: 4}, "x")) == "2(x - 1)(x - 2)"
-assert factorPolynomial(({2: 2, 1: -3, 0: 1}, "x")) == "(x - 1)(2x - 1)"
-assert factorPolynomial(({2: 6, 1: -7, 0: 2}, "x")) == "(2x - 1)(3x - 2)"
-assert factorPolynomial(({2: 6, 1: -9, 0: 3}, "x")) == "3(x - 1)(2x - 1)"
-assert factorPolynomial(({2: 2, 1: -1, 0: 3}, "y")) == "(2y^2 - y + 3)"
-assert factorPolynomial(({2: 1, 1: -3, 0: 2}, "y")) == "(y - 1)(y - 2)"
-assert factorPolynomial(({2: 6, 1: -9, 0: 3}, "y")) == "3(y - 1)(2y - 1)"
-assert factorPolynomial(({0: 5}, "x")) == "5"
+    #* Factor polynomial
+    assert factorPolynomial(({2: 1, 1: -2, 0: 1}, "x")) == "(x - 1)(x - 1)"
+    assert factorPolynomial(({2: 1, 1: 3, 0: 2}, "x")) == "(x + 1)(x + 2)"
+    assert factorPolynomial(({3: 1, 2: -1, 1: 1, 0: -1}, "x")) == "(x - 1)(x^2 + 1)"
+    assert factorPolynomial(({2: 1, 1: -1, 0: 0}, "x")) == "x(x - 1)"
+    assert factorPolynomial(({2: 2, 1: -6, 0: 4}, "x")) == "2(x - 1)(x - 2)"
+    assert factorPolynomial(({2: 2, 1: -3, 0: 1}, "x")) == "(x - 1)(2x - 1)"
+    assert factorPolynomial(({2: 6, 1: -7, 0: 2}, "x")) == "(2x - 1)(3x - 2)"
+    assert factorPolynomial(({2: 6, 1: -9, 0: 3}, "x")) == "3(x - 1)(2x - 1)"
+    assert factorPolynomial(({2: 2, 1: -1, 0: 3}, "y")) == "(2y^2 - y + 3)"
+    assert factorPolynomial(({2: 1, 1: -3, 0: 2}, "y")) == "(y - 1)(y - 2)"
+    assert factorPolynomial(({2: 6, 1: -9, 0: 3}, "y")) == "3(y - 1)(2y - 1)"
+    assert factorPolynomial(({0: 5}, "x")) == "5"
 
-#* The grand orchestrator
-assert grandOrchestrator("x^2 - 3x + 2") == "(x - 1)(x - 2)"
-assert grandOrchestrator("2x^2 - 6x + 4") == "2(x - 1)(x - 2)"
-assert grandOrchestrator("x^3 - x^2 + x - 1") == "(x - 1)(x^2 + 1)"
-assert grandOrchestrator("x^2 - x") == "x(x - 1)"
-assert grandOrchestrator("2*x^2 - 3x + 1") == "(x - 1)(2x - 1)"
-assert grandOrchestrator("x - x") == "0"
+    #* The grand orchestrator
+    assert grandOrchestrator("x^2 - 3x + 2") == "(x - 1)(x - 2)"
+    assert grandOrchestrator("2x^2 - 6x + 4") == "2(x - 1)(x - 2)"
+    assert grandOrchestrator("x^3 - x^2 + x - 1") == "(x - 1)(x^2 + 1)"
+    assert grandOrchestrator("x^2 - x") == "x(x - 1)"
+    assert grandOrchestrator("2*x^2 - 3x + 1") == "(x - 1)(2x - 1)"
+    assert grandOrchestrator("x - x") == "0"
 
-try:
-    grandOrchestrator("x + y")
-    assert False
-except ValueError as e:
-    assert "variable" in str(e)
+    try:
+        grandOrchestrator("x + y")
+        assert False
+    except ValueError as e:
+        assert "variable" in str(e)
 
-#* Multiply polynomial dicts
-assert multiplyPolDicts({1: 1, 0: -1}, {1: 1, 0: -2}) == {2: 1, 1: -3, 0: 2}
-assert multiplyPolDicts({0: 2}, {2: 1, 0: 1}) == {2: 2, 0: 2}
-assert multiplyPolDicts({2: 1, 0: 1}, {1: 1, 0: -1}) == {3: 1, 2: -1, 1: 1, 0: -1}
-assert multiplyPolDicts({0: 3}, {1: 1, 0: -4}) == {1: 3, 0: -12}
+    #* Multiply polynomial dicts
+    assert multiplyPolDicts({1: 1, 0: -1}, {1: 1, 0: -2}) == {2: 1, 1: -3, 0: 2}
+    assert multiplyPolDicts({0: 2}, {2: 1, 0: 1}) == {2: 2, 0: 2}
+    assert multiplyPolDicts({2: 1, 0: 1}, {1: 1, 0: -1}) == {3: 1, 2: -1, 1: 1, 0: -1}
+    assert multiplyPolDicts({0: 3}, {1: 1, 0: -4}) == {1: 3, 0: -12}
 
-#* Polynomial dictionary to string
-assert polDictToStr({2: 1, 1: -3, 0: 2}, "x") == "x^2 - 3x + 2"
-assert polDictToStr({3: 1, 2: -1, 1: 1, 0: -1}, "x") == "x^3 - x^2 + x - 1"
-assert polDictToStr({0: 5}, "x") == "5"
-assert polDictToStr({}, "x") == "0"
+    #* Polynomial dictionary to string
+    assert polDictToStr({2: 1, 1: -3, 0: 2}, "x") == "x^2 - 3x + 2"
+    assert polDictToStr({3: 1, 2: -1, 1: 1, 0: -1}, "x") == "x^3 - x^2 + x - 1"
+    assert polDictToStr({0: 5}, "x") == "5"
+    assert polDictToStr({}, "x") == "0"
 
-#* Expand polynomial
-assert expandPolynomial("(x - 1)(x - 2)") == "x^2 - 3x + 2"
-assert expandPolynomial("2(x - 1)(x - 2)") == "2x^2 - 6x + 4"
-assert expandPolynomial("(x - 1)(x^2 + 1)") == "x^3 - x^2 + x - 1"
-assert expandPolynomial("x(x - 1)") == "x^2 - x"
-assert expandPolynomial("(2x - 1)(3x - 2)") == "6x^2 - 7x + 2"
-assert expandPolynomial("3(y - 1)(2y - 1)") == "6y^2 - 9y + 3"
-assert expandPolynomial("(2y^2 - y + 3)") == "2y^2 - y + 3"
-assert expandPolynomial("5") == "5"
-assert expandPolynomial("0") == "0"
+    #* Expand polynomial
+    assert expandPolynomial("(x - 1)(x - 2)") == "x^2 - 3x + 2"
+    assert expandPolynomial("2(x - 1)(x - 2)") == "2x^2 - 6x + 4"
+    assert expandPolynomial("(x - 1)(x^2 + 1)") == "x^3 - x^2 + x - 1"
+    assert expandPolynomial("x(x - 1)") == "x^2 - x"
+    assert expandPolynomial("(2x - 1)(3x - 2)") == "6x^2 - 7x + 2"
+    assert expandPolynomial("3(y - 1)(2y - 1)") == "6y^2 - 9y + 3"
+    assert expandPolynomial("(2y^2 - y + 3)") == "2y^2 - y + 3"
+    assert expandPolynomial("5") == "5"
+    assert expandPolynomial("0") == "0"
 
-#* Roundtrip tests
-assert expandPolynomial(grandOrchestrator("x^2 - 3x + 2")) == "x^2 - 3x + 2"
-assert expandPolynomial(grandOrchestrator("2x^2 - 6x + 4")) == "2x^2 - 6x + 4"
-assert expandPolynomial(grandOrchestrator("6y^2 - 9y + 3")) == "6y^2 - 9y + 3"
+    #* Roundtrip tests
+    assert expandPolynomial(grandOrchestrator("x^2 - 3x + 2")) == "x^2 - 3x + 2"
+    assert expandPolynomial(grandOrchestrator("2x^2 - 6x + 4")) == "2x^2 - 6x + 4"
+    assert expandPolynomial(grandOrchestrator("6y^2 - 9y + 3")) == "6y^2 - 9y + 3"
+
+
+#! Run
+if __name__ == "__main__":
+    test()
+    keyboardLoop()
