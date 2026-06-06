@@ -96,10 +96,19 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, int]:
         elif term.startswith(f"-{var}"):
             term = "-1" + term[1:]
 
-        # the rest of the logic
-        coef = int(term.split(f"{var}^")[0])
-        power = int(term.split(f"{var}^")[1])
+        # split into coefficient & power
+        parts = term.split(f"{var}^")
 
+        if len(parts) != 2:
+            raise ValueError(f"Malformed term: '{term}'")
+
+        try:
+            coef = int(parts[0])
+            power = int(parts[1])
+        except ValueError:
+            raise ValueError(f"Malformed term — expected integer coefficient and power, got '{term}'")
+
+        # add to dictionary
         if power not in powers:
             powers[power] = 0
 
@@ -422,6 +431,18 @@ assert(sumTerms("x", ["x", "x", "-x"]) == {1: 1})
 assert(sumTerms("x", ["-15", "2x", "3x^12", "-x"]) == {12: 3, 1: 1, 0: -15})
 assert(sumTerms("x", ["2x", "-2x"]) == {1: 0})
 assert(sumTerms("x", ["3x^2", "5x^2", "-2x"]) == {2: 8, 1: -2})
+
+try:
+    sumTerms("x", ["2x3"])
+    assert False
+except ValueError:
+    assert True
+
+try:
+    sumTerms("x", ["2.5x^2"])
+    assert False
+except ValueError:
+    assert True
 
 #* Parse input
 assert(parseInput("x^2 - 3x + 1") == ({2: 1, 1: -3, 0: 1}, "x"))
