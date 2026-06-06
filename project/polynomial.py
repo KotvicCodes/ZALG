@@ -74,8 +74,9 @@ def sumTerms(var: str, terms: list[str]) -> dict[int, int]:
     """
     Inputs: variable of polynomial (char) & array of terms of the polynomial
 
-    Output: dict, where keys are powers (int) of the variable and values are their coeficients (int)
+    Output: dict, where keys are powers (int) of the variable and values are their coefficients (int)
     """
+
     powers = {}
 
     for term in terms:
@@ -108,7 +109,7 @@ def parseInput(polynomial: str) -> dict[int, int]:
     """
     Input: string including polynomial
 
-    Output: dict, where keys are powers (int) of the variable and values are their coeficients (int)
+    Output: dict, where keys are powers (int) of the variable and values are their coefficients (int)
     """
 
     terms = splitTerms(polynomial)
@@ -122,9 +123,9 @@ def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
     """
     Transforms the dict representation of polynomial into the array representation of it.
 
-    Input: dict, where keys are powers (int) of the variable and values are their coeficients (int)
+    Input: dict, where keys are powers (int) of the variable and values are their coefficients (int)
 
-    Output: array of coeficients from the highest power descending to the absolute term
+    Output: array of coefficients from the highest power descending to the absolute term
 
     Note: empty dictionary is taken as 0 polynomial
     """
@@ -133,53 +134,54 @@ def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
     if polynomialDict == {}:
         return [0]
     
-    polyArray = []
+    polArray = []
     previousPower = None
 
     # transform dict into array with zero coef for missing powers
     for power, coef in sorted(polynomialDict.items(), reverse=True):
         if previousPower is None:
-            polyArray.append(coef)
+            polArray.append(coef)
         elif previousPower - power == 1:
-            polyArray.append(coef)
+            polArray.append(coef)
         else:
             for i in range(previousPower - power - 1):
-                polyArray.append(0)
-            polyArray.append(coef)
+                polArray.append(0)
+            polArray.append(coef)
 
         previousPower = power
 
     # add trailing zeros
     if previousPower != 0:
         for i in range(previousPower):
-                polyArray.append(0)
+                polArray.append(0)
 
-    return polyArray
+    return polArray
 
 
 #* Find candidate roots:
-def findCandidates(polyArray: list[int]) -> list[tuple[int, int]]:
+def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
     """
     Finds all candidates for roots based on Rational root theorem
 
-    Input: array of coeficients from the highest power descending to the absolute term
+    Input: array of coefficients from the highest power descending to the absolute term
 
     Output: array of tupples representing fractions
     """
+
     candidates = []
 
     # delete trailing zeros
     hasZeroRoot = False
-    while polyArray[-1] == 0:
-        polyArray = polyArray[:-1]
+    
+    while polArray[-1] == 0:
+        polArray = polArray[:-1]
         hasZeroRoot = True
 
     if hasZeroRoot:
         candidates.append((0, 1))
 
-
     # divisors of absolute coef
-    absCoef = abs(polyArray[-1])
+    absCoef = abs(polArray[-1])
     absCoefDivisors = []
 
     for n in range(1, absCoef // 2 + 1):
@@ -189,7 +191,7 @@ def findCandidates(polyArray: list[int]) -> list[tuple[int, int]]:
     absCoefDivisors.append(absCoef)
 
     # divisors of leading coef
-    leadCoef = abs(polyArray[0])
+    leadCoef = abs(polArray[0])
     leadCoefDivisors = []
 
     for n in range(1, leadCoef // 2 + 1):
@@ -199,19 +201,19 @@ def findCandidates(polyArray: list[int]) -> list[tuple[int, int]]:
     leadCoefDivisors.append(leadCoef)
 
     # candidates
-    for lead in leadCoefDivisors:
-        for ab in absCoefDivisors:
-            candidates.append((ab, lead))
-            candidates.append((-ab, lead))
+    for leadDivisor in leadCoefDivisors:
+        for absDivisor in absCoefDivisors:
+            candidates.append((absDivisor, leadDivisor))
+            candidates.append((-absDivisor, leadDivisor))
     return candidates
 
 
 #* Horner's scheme
-def horner(pol: list[int], candidate: tuple[int, int]) -> bool:
+def horner(polArray: list[int], candidate: tuple[int, int]) -> bool:
     """
     Finds whether a candidate is a root of the polynomial
 
-    Input: polynomial (array of coeficients from the highest power descending to the absolute term)
+    Input: polynomial (array of coefficients from the highest power descending to the absolute term)
     and a single candidate depicted by a tupple (p, q) representing a fraction p/q
 
     Output: boolean value where True implies candidate is root and False means it's not
@@ -219,21 +221,21 @@ def horner(pol: list[int], candidate: tuple[int, int]) -> bool:
     Note: This function depends on fractions library
     """
 
-    result = pol[0]
+    result = polArray[0]
     x = Fraction(candidate[0], candidate[1])
 
-    for coef in pol[1:]:
+    for coef in polArray[1:]:
         result = result * x + coef
 
     return result == 0
 
 
 #* Deflate polynomial
-def deflate(pol: list[int], root: tuple[int, int]) -> list[int]:
+def deflate(polArray: list[int], root: tuple[int, int]) -> list[int]:
     """
     Divides polynomial by its root using Horner's scheme
 
-    Input: polynomial (array of coeficients from the highest power descending to the absolute term) and its root
+    Input: polynomial (array of coefficients from the highest power descending to the absolute term) and its root
 
     Output: polynomial (in array form) divided by (r - x)
 
@@ -241,22 +243,22 @@ def deflate(pol: list[int], root: tuple[int, int]) -> list[int]:
     """
 
     # get coefs of deflated polynomial
-    result = pol[0]
+    result = polArray[0]
     x = Fraction(root[0], root[1])
-    newPol = [result]
+    newPolArray = [result]
 
-    for coef in pol[1:-1]:
+    for coef in polArray[1:-1]:
         result = result * x + coef
-        newPol.append(result)
+        newPolArray.append(result)
     
     # check whether remained is zero
-    result = result * x + pol[-1]
+    result = result * x + polArray[-1]
 
     if result != 0:
         raise ValueError("deflate() was expecting a root of a polyomial")
 
     # return
-    return newPol
+    return newPolArray
 
 
 #* Get irreducible factor
@@ -264,7 +266,7 @@ def getIrreducible(polArray: list[int]) -> str:
     """
     Transforms array representing irreducible factor into a string
 
-    Input: array of coeficients from the highest power descending to the absolute term
+    Input: array of coefficients from the highest power descending to the absolute term
 
     Output: string including irreducible term of a polynomial
     """
@@ -313,12 +315,12 @@ def signum(number: int) -> str:
 #* Factor polynomial
 def factorPolynomial(polynomialDict: dict[int, int]) -> str:
     """
-    Input: dict, where keys are powers of the variable and values are coeficient before them
+    Input: dict, where keys are powers of the variable and values are coefficient before them
 
     Output: string of the factored polynomial
     """
 
-    # innitialization
+    # initialization
     polArray = dictToArray(polynomialDict)
     candidates = findCandidates(polArray)
     leadingCoef = polArray[0]
@@ -327,15 +329,15 @@ def factorPolynomial(polynomialDict: dict[int, int]) -> str:
     # get roots
     roots = []
 
-    for can in candidates:
-        while horner(polArray, can):
-            roots.append(can)
-            polArray = deflate(polArray, can)
+    for candidate in candidates:
+        while horner(polArray, candidate):
+            roots.append(candidate)
+            polArray = deflate(polArray, candidate)
 
         if len(polArray) == 1:
             break
 
-    # get leading coeficient
+    # get leading coefficient
     denomProduct = 1
     for root in roots:
         denomProduct *= root[1]
