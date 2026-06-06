@@ -321,10 +321,8 @@ def factorPolynomial(polynomialDict: dict[int, int]) -> str:
     # innitialization
     polArray = dictToArray(polynomialDict)
     candidates = findCandidates(polArray)
+    leadingCoef = polArray[0]
     factoredPol = ""
-
-    if polArray[0] != 1:
-        factoredPol += str(polArray[0])
 
     # get roots
     roots = []
@@ -336,6 +334,15 @@ def factorPolynomial(polynomialDict: dict[int, int]) -> str:
 
         if len(polArray) == 1:
             break
+
+    # get leading coeficient
+    denomProduct = 1
+    for root in roots:
+        denomProduct *= root[1]
+    scalar = leadingCoef // denomProduct
+
+    if scalar != 1:
+        factoredPol += str(scalar)
 
     # rewrite in bracket notation
     irreducible = getIrreducible(polArray)
@@ -453,6 +460,9 @@ assert(getIrreducible([1]) == "")
 assert(factorPolynomial({2: 1, 1: -3, 0: 2}) == "(x - 1)(x - 2)")
 assert(factorPolynomial({2: 1, 1: -2, 0: 1}) == "(x - 1)(x - 1)")
 assert(factorPolynomial({2: 1, 1: 3, 0: 2}) == "(x + 1)(x + 2)")
-assert(factorPolynomial({2: 2, 1: -3, 0: 1}) == "2(x - 1)(2x - 1)")
 assert(factorPolynomial({3: 1, 2: -1, 1: 1, 0: -1}) == "(x - 1)(x^2 + 1)")
 assert(factorPolynomial({2: 1, 1: -1, 0: 0}) == "x(x - 1)")
+assert(factorPolynomial({2: 2, 1: -6, 0: 4}) == "2(x - 1)(x - 2)")
+assert(factorPolynomial({2: 2, 1: -3, 0: 1}) == "(x - 1)(2x - 1)")
+assert(factorPolynomial({2: 6, 1: -7, 0: 2}) == "(2x - 1)(3x - 2)")
+assert(factorPolynomial({2: 6, 1: -9, 0: 3}) == "3(x - 1)(2x - 1)")
