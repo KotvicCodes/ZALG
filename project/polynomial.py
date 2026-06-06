@@ -514,6 +514,27 @@ if __name__ == "__main__":
     keyboardLoop()
 
 
+#! Expand Polynomial
+#* Multiply polynomial dictionaries
+def multiplyPolDicts(pol1: dict[int, int], pol2: dict[int, int]) -> dict[int, int]:
+    """
+    Multiplies two polynomials in dict representation.
+
+    Input: two dicts where keys are powers (int) and values are coefficients (int)
+
+    Output: dict of the product
+    """
+
+    result = {}
+
+    for power1, coef1 in pol1.items():
+        for power2, coef2 in pol2.items():
+            newPower = power1 + power2
+            result[newPower] = result.get(newPower, 0) + coef1 * coef2
+
+    return result
+
+
 #! Tests
 #* Split terms
 assert splitTerms("-21x + 13") == ["13", "-21x"]
@@ -664,3 +685,9 @@ try:
     assert False
 except ValueError as e:
     assert "variable" in str(e)
+
+#* Multiply polynomial dicts
+assert multiplyPolDicts({1: 1, 0: -1}, {1: 1, 0: -2}) == {2: 1, 1: -3, 0: 2}
+assert multiplyPolDicts({0: 2}, {2: 1, 0: 1}) == {2: 2, 0: 2}
+assert multiplyPolDicts({2: 1, 0: 1}, {1: 1, 0: -1}) == {3: 1, 2: -1, 1: 1, 0: -1}
+assert multiplyPolDicts({0: 3}, {1: 1, 0: -4}) == {1: 3, 0: -12}
