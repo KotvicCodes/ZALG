@@ -15,8 +15,11 @@ def splitTerms(polynomial: str) -> list[str]:
     Note: returns terms in reverse order
     """
 
-    # delete whitespace
+    # delete spaces and check for empty string
     spaceless = polynomial.replace(" ", "")
+
+    if not spaceless:
+        raise ValueError("Input polynomial cannot be empty")
 
     # add operator to the start
     if spaceless[0] not in ["+", "-"]:
@@ -26,12 +29,12 @@ def splitTerms(polynomial: str) -> list[str]:
     terms = []
     currentLength = 0
 
-    for num, char in enumerate(reversed(spaceless)):
+    for i, char in enumerate(reversed(spaceless)):
         currentLength += 1
 
         if char in ["+", "-"]:
-            startIndex = len(spaceless) - num
-            endIndex = len(spaceless) - num + currentLength
+            startIndex = len(spaceless) - i
+            endIndex = len(spaceless) - i + currentLength
 
             if char == "+":
                 terms.append(spaceless[startIndex:endIndex-1])
@@ -109,7 +112,7 @@ def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
     """
     Input: string including polynomial
 
-    Output: tupple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
+    Output: tuple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
     """
 
     terms = splitTerms(polynomial)
@@ -144,7 +147,7 @@ def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
         elif previousPower - power == 1:
             polArray.append(coef)
         else:
-            for i in range(previousPower - power - 1):
+            for _ in range(previousPower - power - 1):
                 polArray.append(0)
             polArray.append(coef)
 
@@ -152,20 +155,20 @@ def dictToArray(polynomialDict: dict[int, int]) -> list[int]:
 
     # add trailing zeros
     if previousPower != 0:
-        for i in range(previousPower):
+        for _ in range(previousPower):
                 polArray.append(0)
 
     return polArray
 
 
-#* Find candidate roots:
+#* Find candidate roots
 def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
     """
     Finds all candidates for roots based on Rational root theorem
 
     Input: array of coefficients from the highest power descending to the absolute term
 
-    Output: array of tupples representing fractions
+    Output: array of tuples representing fractions
     """
 
     candidates = []
@@ -173,7 +176,7 @@ def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
     # delete trailing zeros
     hasZeroRoot = False
     
-    while polArray[-1] == 0:
+    while polArray[-1] == 0 and len(polArray) > 1:
         polArray = polArray[:-1]
         hasZeroRoot = True
 
@@ -214,7 +217,7 @@ def horner(polArray: list[int], candidate: tuple[int, int]) -> bool:
     Finds whether a candidate is a root of the polynomial
 
     Input: polynomial (array of coefficients from the highest power descending to the absolute term)
-    and a single candidate depicted by a tupple (p, q) representing a fraction p/q
+    and a single candidate depicted by a tuple (p, q) representing a fraction p/q
 
     Output: boolean value where True implies candidate is root and False means it's not
 
@@ -251,14 +254,14 @@ def deflate(polArray: list[int], root: tuple[int, int]) -> list[int]:
         result = result * x + coef
         newPolArray.append(result)
     
-    # check whether remained is zero
+    # check whether remainder is zero
     result = result * x + polArray[-1]
 
     if result != 0:
-        raise ValueError("deflate() was expecting a root of a polyomial")
+        raise ValueError("deflate() was expecting a root of a polynomial")
 
     # return
-    return newPolArray
+    return [int(z) for z in newPolArray]
 
 
 #* Get irreducible factor
@@ -315,7 +318,7 @@ def signum(number: int) -> str:
 #* Factor polynomial
 def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
     """
-    Input: tupple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
+    Input: tuple containing dict (where keys are powers (int) of the variable and values are their coefficients (int)) and a variable (string)
 
     Output: string of the factored polynomial
     """
@@ -341,13 +344,14 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
             break
 
     # get leading coefficient
-    denomProduct = 1
-    for root in roots:
-        denomProduct *= root[1]
-    scalar = leadingCoef // denomProduct
+    if roots:
+        denomProduct = 1
+        for root in roots:
+            denomProduct *= root[1]
+        scalar = leadingCoef // denomProduct
 
-    if scalar != 1:
-        factoredPol += str(scalar)
+        if scalar != 1:
+            factoredPol += str(scalar)
 
     # rewrite in bracket notation
     irreducible = getIrreducible(polArray, var)
