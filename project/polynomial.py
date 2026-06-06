@@ -211,7 +211,7 @@ def horner(pol: list[int], candidate: tuple[int, int]) -> bool:
     """
     Finds whether a candidate is a root of the polynomial
 
-    Input: array of coeficients from the highest power descending to the absolute term
+    Input: polynomial (array of coeficients from the highest power descending to the absolute term)
     and a single candidate depicted by a tupple (p, q) representing a fraction p/q
 
     Output: boolean value where True implies candidate is root and False means it's not
@@ -226,6 +226,37 @@ def horner(pol: list[int], candidate: tuple[int, int]) -> bool:
         result = result * x + coef
 
     return result == 0
+
+
+#* Deflate polynomial
+def deflate(pol: list[int], root: tuple[int, int]) -> list[int]:
+    """
+    Divides polynomial by its root using Horner's scheme
+
+    Input: polynomial (array of coeficients from the highest power descending to the absolute term) and its root
+
+    Output: polynomial (in array form) divided by (r - x)
+
+    Note: This function depends on fractions library
+    """
+
+    # get coefs of deflated polynomial
+    result = pol[0]
+    x = Fraction(root[0], root[1])
+    newPol = [result]
+
+    for coef in pol[1:-1]:
+        result = result * x + coef
+        newPol.append(result)
+    
+    # check whether remained is zero
+    result = result * x + pol[-1]
+
+    if result != 0:
+        raise ValueError("deflate() was expecting a root of a polyomial")
+
+    # return
+    return newPol
 
 
 #! Tests
@@ -302,3 +333,15 @@ assert(not horner([1, -3, 2], (3, 1)))
 assert(horner([2, -3, 1], (1, 2)))
 assert(horner([1, -1, 0], (0, 1)))
 assert(not horner([5], (1, 1)))
+
+#* Deflate polynomial
+assert(deflate([1, -3, 2], (1, 1)) == [1, -2])
+assert(deflate([1, -3, 2], (2, 1)) == [1, -1])
+assert(deflate([2, -3, 1], (1, 2)) == [2, -2])
+assert(deflate([1, -6, 11, -6], (1, 1)) == [1, -5, 6])
+
+try:
+    deflate([1, -3, 2], (3, 1))
+    assert False
+except ValueError:
+    assert True
