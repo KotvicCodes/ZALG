@@ -259,6 +259,55 @@ def deflate(pol: list[int], root: tuple[int, int]) -> list[int]:
     return newPol
 
 
+#* Get irreducible factor
+def getIrreducible(polArray: list[int]) -> str:
+    """
+    Transforms array representing irreducible factor into a string
+
+    Input: array of coeficients from the highest power descending to the absolute term
+
+    Output: string including irreducible term of a polynomial
+    """
+    irreducible = ""
+
+    if len(polArray) > 1:
+        power = len(polArray) - 1
+
+        for coef in polArray:
+            if coef != 0:
+                if irreducible == "" and signum(coef) == "-":
+                    irreducible += "-"
+                elif irreducible != "":
+                    if signum(coef) == "+":
+                        irreducible += " + "
+                    else:
+                        irreducible += " - "
+                
+                if power > 1:
+                    irreducible += f"{abs(coef)}x^{power}"
+                elif power == 1:
+                    irreducible += f"{abs(coef)}x"
+                elif power == 0:
+                    irreducible += f"{abs(coef)}"
+            
+            power -= 1
+    return irreducible
+
+
+#* Signum
+def signum(number: int) -> str:
+    """
+    Returns a string of +, - or "" based on the sign of the input integer
+    """
+
+    if number > 0:
+        return "+"
+    elif number < 0:
+        return "-"
+    else:
+        return ""
+
+
 #! Tests
 #* Split terms
 assert(splitTerms("-21x + 13") == ["13", "-21x"])
@@ -345,3 +394,11 @@ try:
     assert False
 except ValueError:
     assert True
+
+#* Get irreducible factor
+assert(getIrreducible([1, -1]) == "x - 1")
+assert(getIrreducible([1, 1]) == "x + 1")
+assert(getIrreducible([-1, 1]) == "-x + 1")
+assert(getIrreducible([1, 0, 1]) == "x^2 + 1")
+assert(getIrreducible([1, -3, 2]) == "x^2 - 3x + 2")
+assert(getIrreducible([1]) == "")
