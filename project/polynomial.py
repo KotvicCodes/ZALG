@@ -336,6 +336,7 @@ def getIrreducible(polArray: list[int], var: str) -> str:
 
     Output: string including irreducible term of a polynomial
     """
+
     irreducible = ""
 
     if len(polArray) > 1:
@@ -435,6 +436,12 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
         factoredPol += f"({irreducible})"
 
     return factoredPol
+
+
+#! Overhead Functions
+#* The grand orchestrator
+def grandOrchestrator(polynomial: str) -> str:    
+    return factorPolynomial(parseInput(polynomial))
 
 
 #! Tests
@@ -581,3 +588,10 @@ assert(factorPolynomial(({2: 1, 1: -3, 0: 2}, "y")) == "(y - 1)(y - 2)")
 assert(factorPolynomial(({2: 6, 1: -9, 0: 3}, "y")) == "3(y - 1)(2y - 1)")
 assert factorPolynomial(({0: 5}, "x")) == "5"
 assert factorPolynomial(({2: 1, 1: -3, 0: 2}, "x")) == "(x - 1)(x - 2)"
+
+#* The grand orchestrator
+assert grandOrchestrator("x^2 - 3x + 2") == "(x - 1)(x - 2)"
+assert grandOrchestrator("2x^2 - 6x + 4") == "2(x - 1)(x - 2)"
+assert grandOrchestrator("x^3 - x^2 + x - 1") == "(x - 1)(x^2 + 1)"
+assert grandOrchestrator("x^2 - x") == "x(x - 1)"
+assert grandOrchestrator("2*x^2 - 3x + 1") == "(x - 1)(2x - 1)"
