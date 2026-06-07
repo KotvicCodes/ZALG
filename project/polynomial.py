@@ -227,7 +227,7 @@ def dictToArray(polDict: dict[int, int]) -> list[int]:
 #* Find candidate roots
 def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
     """
-    Finds all candidates for roots based on Rational root theorem
+    Finds all candidates for roots based on Rational root theorem, does not return ordered list
 
     Input: array of coefficients from the highest power descending to the absolute term
 
@@ -250,21 +250,21 @@ def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
     absCoef = abs(polArray[-1])
     absCoefDivisors = []
 
-    for n in range(1, absCoef // 2 + 1):
+    for n in range(1, int(absCoef ** 0.5) + 1):
         if absCoef % n == 0:
             absCoefDivisors.append(n)
-
-    absCoefDivisors.append(absCoef)
+            if n != absCoef // n:
+                absCoefDivisors.append(absCoef // n)
 
     # divisors of leading coef
     leadCoef = abs(polArray[0])
     leadCoefDivisors = []
 
-    for n in range(1, leadCoef // 2 + 1):
+    for n in range(1, int(leadCoef ** 0.5) + 1):
         if leadCoef % n == 0:
             leadCoefDivisors.append(n)
-
-    leadCoefDivisors.append(leadCoef)
+            if n != leadCoef // n:
+                leadCoefDivisors.append(leadCoef // n)
 
     # candidates
     for leadDivisor in leadCoefDivisors:
@@ -405,7 +405,9 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
 
     for candidate in candidates:
         while horner(polArray, candidate):
-            roots.append(candidate)
+            # truncate fractions
+            f = Fraction(candidate[0], candidate[1])
+            roots.append((f.numerator, f.denominator))
             polArray = deflate(polArray, candidate)
 
         if len(polArray) == 1:
@@ -699,14 +701,14 @@ def test():
     assert dictToArray({}) == [0]
 
     #* Find candidates
-    assert findCandidates([1, -3, 2]) == [(1, 1), (-1, 1), (2, 1), (-2, 1)]
-    assert findCandidates([1, -5, 6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1)]
-    assert findCandidates([2, -3, 1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2)]
-    assert findCandidates([6, -11, 6, -1]) == [(1, 1), (-1, 1), (1, 2), (-1, 2), (1, 3), (-1, 3), (1, 6), (-1, 6)]
-    assert findCandidates([1, -1, 0]) == [(0, 1), (1, 1), (-1, 1)]
-    assert findCandidates([1, 0, 0, 0]) == [(0, 1), (1, 1), (-1, 1)]
-    assert findCandidates([1]) == [(1, 1), (-1, 1)]
-    assert findCandidates([2, 1, -6]) == [(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1), (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)]
+    assert set(findCandidates([1, -3, 2])) == {(1, 1), (-1, 1), (2, 1), (-2, 1)}
+    assert set(findCandidates([1, -5, 6])) == {(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1)}
+    assert set(findCandidates([2, -3, 1])) == {(1, 1), (-1, 1), (1, 2), (-1, 2)}
+    assert set(findCandidates([6, -11, 6, -1])) == {(1, 1), (-1, 1), (1, 2), (-1, 2), (1, 3), (-1, 3), (1, 6), (-1, 6)}
+    assert set(findCandidates([1, -1, 0])) == {(0, 1), (1, 1), (-1, 1)}
+    assert set(findCandidates([1, 0, 0, 0])) == {(0, 1), (1, 1), (-1, 1)}
+    assert set(findCandidates([1])) == {(1, 1), (-1, 1)}
+    assert set(findCandidates([2, 1, -6])) == {(1, 1), (-1, 1), (2, 1), (-2, 1), (3, 1), (-3, 1), (6, 1), (-6, 1), (1, 2), (-1, 2), (2, 2), (-2, 2), (3, 2), (-3, 2), (6, 2), (-6, 2)}
 
     #* Horner's scheme
     assert horner([1, -3, 2], (1, 1))
