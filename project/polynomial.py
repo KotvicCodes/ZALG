@@ -593,7 +593,7 @@ def expandPolynomial(factored: str) -> str:
         remaining = remaining[scalarMatch.end():]
 
     # extract bare variable (zero root)
-    if remaining.startswith(var):
+    while remaining.startswith(var):
         result = multiplyPolDicts(result, {1: 1})
         remaining = remaining[1:]
 
@@ -790,12 +790,14 @@ def test():
     assert expandPolynomial("(2y^2 - y + 3)") == "2y^2 - y + 3"
     assert expandPolynomial("5") == "5"
     assert expandPolynomial("0") == "0"
+    assert expandPolynomial("(x + 2) (x - 1)") == "x^2 + x - 2"
 
     #* Roundtrip tests
     assert expandPolynomial(grandOrchestrator("x^2 - 3x + 2")) == "x^2 - 3x + 2"
     assert expandPolynomial(grandOrchestrator("2x^2 - 6x + 4")) == "2x^2 - 6x + 4"
     assert expandPolynomial(grandOrchestrator("6y^2 - 9y + 3")) == "6y^2 - 9y + 3"
 
+    print("All tests passed ✓\n")
 
 #! Run
 if __name__ == "__main__":
