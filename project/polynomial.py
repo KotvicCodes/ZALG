@@ -23,7 +23,7 @@ def splitTerms(polynomial: str) -> list[str]:
 
     if not spaceless:
         raise ValueError("Input polynomial cannot be empty")
-    
+
     # multiply numbers with star
     def multiplyMatch(match):
         left = int(match.group(1))
@@ -71,12 +71,12 @@ def splitTerms(polynomial: str) -> list[str]:
     for term in terms:
         if '.' in term or "," in term:
             raise ValueError(f"Only integer coefficients are supported, got '{term}'")
-    
+
     validTerm = re.compile(r'^-?(\d+[a-zA-Z]?|[a-zA-Z])(\^\d+)?$')
     for term in terms:
         if not validTerm.match(term):
             raise ValueError(f"Malformed term: '{term}'")
-    
+
     # return
     return terms
 
@@ -199,7 +199,7 @@ def dictToArray(polDict: dict[int, int]) -> list[int]:
     # empty dict
     if polDict == {}:
         return [0]
-    
+
     polArray = []
     previousPower = None
 
@@ -238,7 +238,7 @@ def findCandidates(polArray: list[int]) -> list[tuple[int, int]]:
 
     # delete trailing zeros
     hasZeroRoot = False
-    
+
     while polArray[-1] == 0 and len(polArray) > 1:
         polArray = polArray[:-1]
         hasZeroRoot = True
@@ -316,7 +316,7 @@ def deflate(polArray: list[int], root: tuple[int, int]) -> list[int]:
     for coef in polArray[1:-1]:
         result = result * x + coef
         newPolArray.append(result)
-    
+
     # check whether remainder is zero
     result = result * x + polArray[-1]
 
@@ -351,7 +351,7 @@ def getIrreducible(polArray: list[int], var: str) -> str:
                         irreducible += " + "
                     else:
                         irreducible += " - "
-                
+
                 coefStr = "" if abs(coef) == 1 and power > 0 else str(abs(coef))
 
                 if power > 1:
@@ -360,7 +360,7 @@ def getIrreducible(polArray: list[int], var: str) -> str:
                     irreducible += f"{coefStr}{var}"
                 elif power == 0:
                     irreducible += f"{abs(coef)}"
-            
+
             power -= 1
     return irreducible
 
@@ -442,7 +442,14 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
 
 #! Overhead Functions
 #* The grand orchestrator
-def grandOrchestrator(polynomial: str) -> str:    
+def grandOrchestrator(polynomial: str) -> str:
+    """
+    Orchestrator function parsing for and factoring polynomials
+
+    Input: string including polynomial
+
+    Output: string of the factored polynomial
+    """
     return factorPolynomial(parseInput(polynomial))
 
 
@@ -481,14 +488,13 @@ def processFile(filename: str) -> None:
 
 
 #* Keyboard loop
-
 def keyboardLoop() -> None:
     """
     Repeatedly reads polynomials from keyboard input and prints factored results.
     Type 'file' to process a file, 'exit' to quit.
     """
 
-    print("Polynomial Factory©")
+    print("Polynomial Factory ©")
     print(" ✨brought to you by Kotvič✨\n")
     print("Type 'file' to load from file, 'exit' to quit\n")
 
@@ -618,6 +624,12 @@ def expandPolynomial(factored: str) -> str:
 
 #! Tests
 def test():
+    """
+    Tests all of the functions in the pipeline for possible edgecases and bugs.
+
+    Note: Only uses assert for testing
+    """
+
     #* Split terms
     assert splitTerms("-21x + 13") == ["13", "-21x"]
     assert splitTerms("-1") == ["-1"]
@@ -798,6 +810,7 @@ def test():
     assert expandPolynomial(grandOrchestrator("6y^2 - 9y + 3")) == "6y^2 - 9y + 3"
 
     print("All tests passed ✓\n")
+
 
 #! Run
 if __name__ == "__main__":
