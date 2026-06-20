@@ -506,7 +506,7 @@ def keyboardLoop() -> None:
         elif pol == "exit":
             break
         elif pol == "file":
-            filename = input("Filename: ").strip()
+            filename = input("Filepath: ").strip()
             try:
                 processFile(filename)
             except ValueError as e:
