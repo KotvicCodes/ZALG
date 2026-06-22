@@ -148,3 +148,150 @@ All errors are raised as `ValueError` with a descriptive message:
 - Only **one variable** per polynomial.
 - Polynomial **parameters** in coefficients are not supported (e.g. `ax^2 + b`).
 - File mode does **not** support comments.
+
+---
+
+### Functions
+#### Input Parsing
+**splitTerms(polynomial: str) -> list[str]**  
+- checks whether the input is in standard polynomial form
+- trims spaces
+- resolves `2*3x` → `6x` and strips valid `*` between coefficients and variables
+- splits terms into an array
+- validates that all coefficients are integers
+- returns array in the opposite order as it is more effective to handle sign operators (+/-) that way
+```python
+splitTerms("+18 + 19 + x^5")  # ["x^5", "19", "18"]
+```
+
+**getVariable(terms: list[str]) -> str**  
+- checks whether only a single letter (uppercase or lowercase) is used as a variable
+- returns that letter
+- if no letter is found, returns `x`
+```python
+getVariable(["13", "-21x"])  # "x"
+```
+
+**sumTerms(var: str, terms: list[str]) -> dict[int, int]**  
+- first handles absolute and linear terms as they are different from other terms
+- adds leading 1s to existing terms without explicit coefficient
+- splits into sets of coefficient, power
+- checks for malformed terms
+- saves power as a key to the dict and adds the coefficients to it, accumulating if the power already exists
+```python
+sumTerms("x", ["-15", "2x", "3x^12", "-x"])  # {12: 3, 1: 1, 0: -15}
+```
+
+**normalizeDict(polDict: dict[int, int]) -> dict[int, int]**  
+- from the dict, deletes all entries with value of 0
+```python
+normalizeDict({2: 1, 1: 0, 0: -3})  # {2: 1, 0: -3}
+```
+
+**parseInput(polynomial: str) -> tuple[dict[int, int], str]**  
+- overhead function combining `splitTerms()`, `getVariable()`, `sumTerms()` and finally `normalizeDict()`
+```python
+parseInput("x^2 - 3x + 1")  # ({2: 1, 1: -3, 0: 1}, "x")
+```
+
+#### Factor Polynomial
+**dictToArray(polDict: dict[int, int]) -> list[int]**  
+- handles empty dictionary
+- transforms dict into array of coefficients with zero for missing powers
+```python
+dictToArray({3: 2, 1: -1, 0: 5})  # [2, 0, -1, 5]
+```
+
+**findCandidates(polArray: list[int]) -> list[tuple[int, int]]**  
+- deletes trailing zeros and adds 0 as a root of the polynomial
+- finds divisors of absolute and leading coefficient
+- using Rational root theorem, finds all candidates for rational roots
+```python
+set(findCandidates([2, -3, 1]))  # {(1, 1), (-1, 1), (1, 2), (-1, 2)}
+```
+
+**horner(polArray: list[int], candidate: tuple[int, int]) -> bool**  
+- tests candidate for root of a polynomial using Horner's scheme
+```python
+horner([1, -3, 2], (2, 1))  # True
+```
+
+**deflate(polArray: list[int], root: tuple[int, int]) -> list[int]**  
+- divides polynomial by its root using Horner's scheme
+- checks whether remainder is zero (if not throws an error)
+```python
+deflate([1, -3, 2], (2, 1))  # [1, -1]
+```
+
+**getIrreducible(polArray: list[int], var: str) -> str**  
+- returns an empty string for a single-element array as the case is handled elsewhere
+- iterates over coefficients, tracking the current power
+- skips zero coefficients entirely
+- handles the sign of the leading term separately (no leading `+`) and adds ` + ` / ` - ` between later terms using `signum()`
+- suppresses the coefficient `1` when the power is greater than zero (writes `x` not `1x`)
+- formats each term according to its power: `x^n` for n > 1, `x` for n == 1, bare number for n == 0
+```python
+getIrreducible([1, 0, 1], "x")  # "x^2 + 1"
+```
+
+**signum(number: int) -> str**  
+- series of if / else statements checking whether the number is positive, negative, or neither
+```python
+signum(5)   # "+"
+signum(-3)  # "-"
+signum(0)   # ""
+```
+
+**factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str**  
+- unpacks the dict and variable, converts dict to array form
+- returns immediately for constant polynomials
+- iterates over candidates, using Horner's scheme to confirm roots and deflating the polynomial after each one found; a `while` loop handles repeated roots
+- computes the scalar factor as the leading coefficient divided by the product of all root denominators
+- assembles the output string: optional scalar, then one bracket per root (`x` for a zero root, `(x ± p)` for integer roots, `(qx ± p)` for fractional ones), and finally the irreducible remainder if any is left over
+```python
+factorPolynomial(({2: 6, 1: -9, 0: 3}, "x"))  # "3(x - 1)(2x - 1)"
+```
+
+#### Expand Polynomial
+**multiplyPolDicts(pol1: dict[int, int], pol2: dict[int, int]) -> dict[int, int]**  
+- iterates over every pair of terms from both polynomials
+- multiplies the two coefficients and adds the two powers to get the new term
+- accumulates the result in a fresh dict, summing into an existing key when the same power appears more than once
+```python
+multiplyPolDicts({1: 1, 0: -1}, {1: 1, 0: -2})  # {2: 1, 1: -3, 0: 2}
+```
+
+**polDictToStr(polDict: dict[int, int], var: str) -> str**  
+- handles zero polynomial by returning `"0"`
+- converts the dict to array form and delegates formatting to `getIrreducible()`
+```python
+polDictToStr({2: 1, 1: -3, 0: 2}, "x")  # "x^2 - 3x + 2"
+```
+
+**expandPolynomial(factored: str) -> str**  
+- strips spaces and handles the zero polynomial as a special case
+- detects the variable from the first letter found in the string using regex
+- starts with the multiplicative identity `{0: 1}` and optionally replaces it with a leading scalar
+- handles a bare variable at the front of the string (representing a zero root) by multiplying in `{1: 1}`
+- parses each parenthesised factor in turn using `parseInput()` and multiplies it into the running product with `multiplyPolDicts()`
+- normalises and converts the result back to a string with `polDictToStr()`
+```python
+expandPolynomial("(x - 1)(x - 2)")  # "x^2 - 3x + 2"
+```
+
+#### Overhead
+**grandOrchestrator(polynomial: str) -> str**  
+- overhead function combining `parseInput()` and `factorPolynomial()`
+```python
+grandOrchestrator("2x^2 - 6x + 4")  # "2(x - 1)(x - 2)"
+```
+
+**processFile(filename: str) -> None**  
+- opens file
+- trims spaces and skips empty lines
+- evaluates each line using `grandOrchestrator()` and prints the result alongside its line number
+- handles errors per line without aborting the whole file
+
+**keyboardLoop() -> None**  
+- runs an interactive loop in the terminal, letting the user factor or expand polynomials until deliberately closed
+- routes inputs containing parentheses to `expandPolynomial()` and all others to `grandOrchestrator()`
