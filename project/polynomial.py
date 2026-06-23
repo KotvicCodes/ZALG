@@ -18,9 +18,10 @@ def splitTerms(polynomial: str) -> list[str]:
     Note: returns terms in reverse order, depends on re (regex) library
     """
 
-    # delete spaces and check for empty string
+    # delete spaces
     spaceless = polynomial.replace(" ", "")
 
+    # check for empty string
     if not spaceless:
         raise ValueError("Input polynomial cannot be empty")
 
@@ -89,9 +90,10 @@ def getVariable(terms: list[str]) -> str:
     Output: string of one character
 
     Note: currently the polynomials only support a single variable defined by a single char letter,
-    and do not support parameters.
+    and do not support parameters
     """
 
+    # get variable
     var = None
 
     for term in terms:
@@ -102,6 +104,7 @@ def getVariable(terms: list[str]) -> str:
                 elif var != char:
                     raise ValueError("You cannot use more than one variable")
 
+    # no variable in polynomial
     if var is None:
         var = "x"
 
@@ -187,7 +190,7 @@ def parseInput(polynomial: str) -> tuple[dict[int, int], str]:
 #* Dict to array
 def dictToArray(polDict: dict[int, int]) -> list[int]:
     """
-    Transforms the dict representation of polynomial into the array representation of it.
+    Transforms the dict representation of polynomial into the array representation of it
 
     Input: dict, where keys are powers (int) of the variable and values are their coefficients (int)
 
@@ -335,25 +338,32 @@ def getIrreducible(polArray: list[int], var: str) -> str:
     Input: array of coefficients from the highest power descending to the absolute term
 
     Output: string including irreducible term of a polynomial
+
+    Note: Constant polynomial returns empty string
     """
 
     irreducible = ""
 
+    # constant polynomial is handled in factorPolynomial()
     if len(polArray) > 1:
         power = len(polArray) - 1
 
         for coef in polArray:
             if coef != 0:
+                # leading minus
                 if irreducible == "" and signum(coef) == "-":
                     irreducible += "-"
+                # other operators
                 elif irreducible != "":
                     if signum(coef) == "+":
                         irreducible += " + "
                     else:
                         irreducible += " - "
 
+                # omit coef "1"
                 coefStr = "" if abs(coef) == 1 and power > 0 else str(abs(coef))
 
+                # handle terms powers (eg.: x, x^2)
                 if power > 1:
                     irreducible += f"{coefStr}{var}^{power}"
                 elif power == 1:
@@ -396,7 +406,7 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
     leadingCoef = polArray[0]
     factoredPol = ""
 
-    # check for constant polynom
+    # check for constant polynomial
     if len(polArray) == 1:
         return str(polArray[0])
 
@@ -405,7 +415,7 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
 
     for candidate in candidates:
         while horner(polArray, candidate):
-            # truncate fractions
+            # reduce fractions
             f = Fraction(candidate[0], candidate[1])
             roots.append((f.numerator, f.denominator))
             polArray = deflate(polArray, candidate)
@@ -413,7 +423,7 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
         if len(polArray) == 1:
             break
 
-    # get leading coefficient
+    # get leading scalar
     if roots:
         denomProduct = 1
         for root in roots:
@@ -423,7 +433,7 @@ def factorPolynomial(initTuple: tuple[dict[int, int], str]) -> str:
         if scalar != 1:
             factoredPol += str(scalar)
 
-    # rewrite in bracket notation
+    # pretty print in bracket notation
     irreducible = getIrreducible(polArray, var)
 
     for root in roots:
@@ -456,7 +466,7 @@ def grandOrchestrator(polynomial: str) -> str:
 #* Process file
 def processFile(filename: str) -> None:
     """
-    Reads polynomials from a file, one per line, and prints factored results.
+    Reads polynomials from a file, one per line, and prints factored results
 
     Input: path to a text file
 
@@ -490,8 +500,8 @@ def processFile(filename: str) -> None:
 #* Keyboard loop
 def keyboardLoop() -> None:
     """
-    Repeatedly reads polynomials from keyboard input and prints factored results.
-    Type 'file' to process a file, 'exit' to quit.
+    Repeatedly reads polynomials from keyboard input and prints factored results
+    Type 'file' to process a file, 'exit' to quit
     """
 
     print("Polynomial Factory ©")
@@ -526,7 +536,7 @@ def keyboardLoop() -> None:
 #* Multiply polynomial dictionaries
 def multiplyPolDicts(pol1: dict[int, int], pol2: dict[int, int]) -> dict[int, int]:
     """
-    Multiplies two polynomials in dict representation.
+    Multiplies two polynomials in dict representation
 
     Input: two dicts where keys are powers (int) and values are coefficients (int)
 
@@ -546,7 +556,7 @@ def multiplyPolDicts(pol1: dict[int, int], pol2: dict[int, int]) -> dict[int, in
 #* Polynomial dictionary to string
 def polDictToStr(polDict: dict[int, int], var: str) -> str:
     """
-    Converts a polynomial dict into a string.
+    Converts a polynomial dict into a string
 
     Input: dictionary where keys are powers (int) and values are coefficients (int), and variable (str)
 
@@ -569,7 +579,7 @@ def polDictToStr(polDict: dict[int, int], var: str) -> str:
 #* Expand polynomial
 def expandPolynomial(factored: str) -> str:
     """
-    Expands a factored polynomial string back into standard form.
+    Expands a factored polynomial string back into standard form
 
     Input: string in factored form (as produced by factorPolynomial)
 
@@ -625,7 +635,7 @@ def expandPolynomial(factored: str) -> str:
 #! Tests
 def test():
     """
-    Tests all of the functions in the pipeline for possible edgecases and bugs.
+    Tests all of the functions in the pipeline for possible edgecases and bugs
 
     Note: Only uses assert for testing
     """
